@@ -12,16 +12,27 @@ define('COMPANY_NAME', 'Khách Sạn ABC');
 // Tạo BASE_URL động để tránh lỗi 404 khi thư mục dự án đổi tên
 $__protocol = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off') ? 'https://' : 'http://';
 $__host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$__docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/');
-$__rootPath = realpath(__DIR__ . '/..');
+$__scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
 $__basePath = '';
-if ($__docRoot && $__rootPath && strpos($__rootPath, $__docRoot) === 0) {
-	$__basePath = trim(str_replace($__docRoot, '', $__rootPath), '/');
-}
-if ($__basePath === '') {
+
+// Phương pháp 1: Dùng SCRIPT_NAME để xác định base path
+// SCRIPT_NAME có dạng: /hotel-management-system-main/config/constants.php
+// Tách lấy phần /hotel-management-system-main/
+if (strpos($__scriptName, '/config/constants.php') !== false) {
+	$__basePath = str_replace('/config/constants.php', '', $__scriptName);
+	$__basePath = trim($__basePath, '/');
+} else {
 	// Fallback: dùng tên thư mục chứa dự án
-	$__basePath = basename($__rootPath);
+	$__docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/');
+	$__rootPath = realpath(__DIR__ . '/..');
+	if ($__docRoot && $__rootPath && strpos($__rootPath, $__docRoot) === 0) {
+		$__basePath = trim(str_replace($__docRoot, '', $__rootPath), '/');
+	}
+	if ($__basePath === '') {
+		$__basePath = basename($__rootPath);
+	}
 }
+
 // Chuẩn hoá backslashes (Windows) thành forward slashes để hợp lệ trong URL
 $__basePath = str_replace('\\', '/', $__basePath);
 define('BASE_URL', $__protocol . $__host . '/' . ($__basePath ? $__basePath . '/' : ''));

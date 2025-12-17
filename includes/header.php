@@ -2,6 +2,12 @@
 /**
  * Header file - phần đầu của mọi trang
  */
+
+// Ensure constants and functions are loaded
+if (!defined('BASE_URL')) {
+    require_once __DIR__ . '/../config/constants.php';
+    require_once __DIR__ . '/../includes/functions.php';
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">

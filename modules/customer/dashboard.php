@@ -109,10 +109,19 @@ $page_title = 'Dashboard khách hàng';
     
     <!-- Booking gần đây -->
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h6 class="mb-0"><i class="fas fa-history"></i> Booking gần đây</h6>
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h6 class="mb-0"><i class="fas fa-history"></i> Booking gần đây</h6>
+                        </div>
+                        <div class="col-auto">
+                            <a href="booking_history.php" class="btn btn-light btn-sm">
+                                <i class="fas fa-list"></i> Xem tất cả
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
@@ -120,59 +129,78 @@ $page_title = 'Dashboard khách hàng';
                             <tr>
                                 <th>Mã booking</th>
                                 <th>Phòng</th>
-                                <th>Thời gian</th>
+                                <th>Check-in / Check-out</th>
+                                <th>Số người</th>
+                                <th>Tổng tiền</th>
                                 <th>Trạng thái</th>
                                 <th>Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($bookings as $booking): ?>
+                            <?php if (count($bookings) > 0): ?>
+                                <?php foreach ($bookings as $booking): ?>
+                                    <tr>
+                                        <td><strong><?php echo esc($booking['booking_code']); ?></strong></td>
+                                        <td>
+                                            <?php echo esc($booking['room_number']); ?><br>
+                                            <small class="text-muted"><?php echo esc($booking['type_name']); ?></small>
+                                        </td>
+                                        <td>
+                                            <strong><?php echo formatDate($booking['check_in']); ?></strong><br>
+                                            đến <strong><?php echo formatDate($booking['check_out']); ?></strong>
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-users"></i> <?php echo $booking['adults']; ?> người lớn
+                                            <?php if ($booking['children'] > 0): ?>
+                                                <br><small class="text-muted"><?php echo $booking['children']; ?> trẻ em</small>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <strong class="text-primary"><?php echo formatCurrency($booking['total_amount']); ?></strong><br>
+                                            <small class="text-muted">Cọc: <?php echo formatCurrency($booking['deposit_amount']); ?></small>
+                                        </td>
+                                        <td>
+                                            <?php
+                                            $status_badges = [
+                                                'pending' => 'warning',
+                                                'confirmed' => 'info',
+                                                'checked_in' => 'success',
+                                                'checked_out' => 'secondary',
+                                                'cancelled' => 'danger'
+                                            ];
+                                            $status_texts = [
+                                                'pending' => 'Chờ xác nhận',
+                                                'confirmed' => 'Đã xác nhận',
+                                                'checked_in' => 'Đã nhận phòng',
+                                                'checked_out' => 'Đã trả phòng',
+                                                'cancelled' => 'Đã hủy'
+                                            ];
+                                            ?>
+                                            <span class="badge bg-<?php echo $status_badges[$booking['status']] ?? 'secondary'; ?>">
+                                                <?php echo $status_texts[$booking['status']] ?? 'Không xác định'; ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="booking_detail.php?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i> Chi tiết
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
                                 <tr>
-                                    <td><strong><?php echo esc($booking['booking_code']); ?></strong></td>
-                                    <td><?php echo esc($booking['room_number']); ?> (<?php echo esc($booking['type_name']); ?>)</td>
-                                    <td>
-                                        <?php echo formatDate($booking['check_in']); ?> - 
-                                        <?php echo formatDate($booking['check_out']); ?>
-                                    </td>
-                                    <td>
-                                        <?php
-                                        $status_badges = [
-                                            'pending' => 'warning',
-                                            'confirmed' => 'info',
-                                            'checked_in' => 'success',
-                                            'checked_out' => 'secondary',
-                                            'cancelled' => 'danger'
-                                        ];
-                                        $status_texts = [
-                                            'pending' => 'Chờ xác nhận',
-                                            'confirmed' => 'Đã xác nhận',
-                                            'checked_in' => 'Đã nhận phòng',
-                                            'checked_out' => 'Đã trả phòng',
-                                            'cancelled' => 'Đã hủy'
-                                        ];
-                                        ?>
-                                        <span class="badge bg-<?php echo $status_badges[$booking['status']] ?? 'secondary'; ?>">
-                                            <?php echo $status_texts[$booking['status']] ?? 'Không xác định'; ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a href="booking_history.php?id=<?php echo $booking['id']; ?>" 
-                                           class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
+                                    <td colspan="7" class="text-center py-4">
+                                        <i class="fas fa-inbox text-muted" style="font-size: 2rem;"></i>
+                                        <p class="text-muted mt-2">Bạn chưa có booking nào</p>
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
-                <div class="card-footer">
-                    <a href="booking_history.php" class="btn btn-primary btn-sm">
-                        <i class="fas fa-list"></i> Xem tất cả
-                    </a>
-                </div>
             </div>
         </div>
+    </div>
         
         <!-- Quick actions -->
         <div class="col-md-4">
@@ -187,6 +215,18 @@ $page_title = 'Dashboard khách hàng';
                     </a>
                     <a href="../../index.php#featured-rooms" class="btn btn-outline-success w-100">
                         <i class="fas fa-star"></i> Xem Phòng Nổi Bật
+                    </a>
+                </div>
+            </div>
+            
+            <div class="card shadow mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-file-invoice-dollar"></i> Hóa đơn</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Xem và tải hóa đơn cho các booking của bạn</p>
+                    <a href="invoices.php" class="btn btn-warning btn-sm w-100">
+                        <i class="fas fa-receipt"></i> Xem hóa đơn
                     </a>
                 </div>
             </div>

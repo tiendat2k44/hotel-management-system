@@ -159,9 +159,9 @@ $page_title = 'Đăng nhập';
                 <div class="card-body">
                     <h6 class="card-title">Tài khoản demo:</h6>
                     <ul class="list-unstyled small mb-2">
-                        <li><strong>Admin:</strong> admin / password</li>
-                        <li><strong>Staff:</strong> staff1 / password</li>
-                        <li><strong>Customer:</strong> customer1 / password</li>
+                        <li><strong>Admin:</strong> admin / 123456</li>
+                        <li><strong>Staff:</strong> staff1 / 123456</li>
+                        <li><strong>Customer:</strong> customer1 / 123456</li>
                     </ul>
                 </div>
             </div>

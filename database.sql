@@ -195,17 +195,17 @@ CREATE TABLE IF NOT EXISTS invoices (
 
 -- Admin user (password: 123456)
 INSERT INTO users (username, password, email, full_name, phone, role, status) 
-VALUES ('admin', '$2y$12$8ZHc7bpP7XO2d1BN2LZ3HeiU0uBLqN0C8rjI6XNzQD7L8J3qpQ3Cm', 
+VALUES ('admin', '$2y$10$EeT0xFdRYL0GQHeA0EcPb.e/Yqd3jvtK9HcN2zf2VijXC2cYkByz6', 
         'admin@hotel.com', 'Admin', '0123456789', 'admin', 'active');
 
 -- Staff user (password: 123456)
 INSERT INTO users (username, password, email, full_name, phone, role, status) 
-VALUES ('staff1', '$2y$12$8ZHc7bpP7XO2d1BN2LZ3HeiU0uBLqN0C8rjI6XNzQD7L8J3qpQ3Cm', 
+VALUES ('staff1', '$2y$10$B4VrXAyAJR6TQCs6bpMTt.Oj9ZCIgwT1BVHnFIlGmadYvdrDDMPNS', 
         'staff@hotel.com', 'Nhân viên 1', '0987654321', 'staff', 'active');
 
 -- Customer user (password: 123456)
 INSERT INTO users (username, password, email, full_name, phone, role, status) 
-VALUES ('customer1', '$2y$12$8ZHc7bpP7XO2d1BN2LZ3HeiU0uBLqN0C8rjI6XNzQD7L8J3qpQ3Cm', 
+VALUES ('customer1', '$2y$10$gRHOYm8efcz4iLC729Fxvu0.cFQrc1iDVTF8Yh4/zq/XpKic936c.', 
         'customer@email.com', 'Nguyễn Văn A', '0912345678', 'customer', 'active');
 
 -- Room types

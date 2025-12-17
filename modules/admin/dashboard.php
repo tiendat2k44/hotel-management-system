@@ -94,7 +94,7 @@ try {
 $page_title = 'Admin Dashboard';
 ?>
 
-<?php include_once '../../includes/header.php'; ?>
+<?php include_once ROOT_PATH . 'includes/header.php'; ?>
 
 <div class="container-fluid mt-4">
     <!-- Thống kê nhanh -->
@@ -302,4 +302,4 @@ $page_title = 'Admin Dashboard';
     </div>
 </div>
 
-<?php include_once '../../includes/footer.php'; ?>
+<?php include_once ROOT_PATH . 'includes/footer.php'; ?>

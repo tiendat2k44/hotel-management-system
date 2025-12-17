@@ -120,7 +120,7 @@ if ($_SESSION['role'] == 'customer' && isset($_SESSION['customer_id'])) {
 $page_title = 'Hồ sơ cá nhân';
 ?>
 
-<?php include_once '../../includes/header.php'; ?>
+<?php include_once ROOT_PATH . 'includes/header.php'; ?>
 
 <div class="container mt-4">
     <div class="row">
@@ -246,4 +246,4 @@ $page_title = 'Hồ sơ cá nhân';
     </div>
 </div>
 
-<?php include_once '../../includes/footer.php'; ?>
+<?php include_once ROOT_PATH . 'includes/footer.php'; ?>

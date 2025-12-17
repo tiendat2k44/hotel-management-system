@@ -26,7 +26,7 @@ try {
 $page_title = 'Quản lý dịch vụ';
 ?>
 
-<?php include_once '../../../includes/header.php'; ?>
+<?php include_once ROOT_PATH . 'includes/header.php'; ?>
 
 <div class="container-fluid mt-4">
     <div class="card shadow">
@@ -92,4 +92,4 @@ $page_title = 'Quản lý dịch vụ';
     </div>
 </div>
 
-<?php include_once '../../../includes/footer.php'; ?>
+<?php include_once ROOT_PATH . 'includes/footer.php'; ?>

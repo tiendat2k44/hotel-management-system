@@ -32,7 +32,7 @@ try {
 $page_title = 'Trang chủ';
 ?>
 
-<?php include_once 'includes/header.php'; ?>
+<?php include_once ROOT_PATH . 'includes/header.php'; ?>
 
 <!-- Hero section -->
 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4rem 0;">
@@ -218,4 +218,4 @@ $page_title = 'Trang chủ';
     </section>
 </div>
 
-<?php include_once 'includes/footer.php'; ?>
+<?php include_once ROOT_PATH . 'includes/footer.php'; ?>

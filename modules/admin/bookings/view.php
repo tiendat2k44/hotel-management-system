@@ -134,7 +134,7 @@ $services_total = array_sum(array_column($services_used, 'total_price'));
 $page_title = 'Chi tiết booking';
 ?>
 
-<?php include_once '../../../includes/header.php'; ?>
+<?php include_once ROOT_PATH . 'includes/header.php'; ?>
 
 <div class="container-fluid mt-4">
     <div class="row">
@@ -335,4 +335,4 @@ $page_title = 'Chi tiết booking';
     </div>
 </div>
 
-<?php include_once '../../../includes/footer.php'; ?>
+<?php include_once ROOT_PATH . 'includes/footer.php'; ?>

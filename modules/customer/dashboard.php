@@ -56,7 +56,7 @@ try {
 $page_title = 'Dashboard khách hàng';
 ?>
 
-<?php include_once '../../includes/header.php'; ?>
+<?php include_once ROOT_PATH . 'includes/header.php'; ?>
 
 <div class="container-fluid mt-4">
     <!-- Chào mừng -->
@@ -205,4 +205,4 @@ $page_title = 'Dashboard khách hàng';
     </div>
 </div>
 
-<?php include_once '../../includes/footer.php'; ?>
+<?php include_once ROOT_PATH . 'includes/footer.php'; ?>

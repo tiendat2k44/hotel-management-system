@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $page_title = 'Tạo booking mới';
 ?>
 
-<?php include_once '../../../includes/header.php'; ?>
+<?php include_once ROOT_PATH . 'includes/header.php'; ?>
 
 <div class="container-fluid mt-4">
     <div class="row">
@@ -246,4 +246,4 @@ function updateAvailableRooms() {
 document.addEventListener('DOMContentLoaded', updateAvailableRooms);
 </script>
 
-<?php include_once '../../../includes/footer.php'; ?>
+<?php include_once ROOT_PATH . 'includes/footer.php'; ?>

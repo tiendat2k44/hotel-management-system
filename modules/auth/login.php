@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $page_title = 'Đăng nhập';
 ?>
 
-<?php include_once '../../includes/header.php'; ?>
+<?php include_once ROOT_PATH . 'includes/header.php'; ?>
 
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -165,4 +165,4 @@ $page_title = 'Đăng nhập';
     </div>
 </div>
 
-<?php include_once '../../includes/footer.php'; ?>
+<?php include_once ROOT_PATH . 'includes/footer.php'; ?>

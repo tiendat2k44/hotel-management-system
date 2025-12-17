@@ -52,6 +52,13 @@ $page_title = 'Quản lý khách hàng';
 <?php include_once ROOT_PATH . 'includes/header.php'; ?>
 
 <div class="container-fluid mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="../dashboard.php">Dashboard</a></li>
+            <li class="breadcrumb-item active">Quản Lý Khách Hàng</li>
+        </ol>
+    </nav>
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
             <div class="row align-items-center">

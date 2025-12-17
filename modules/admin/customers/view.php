@@ -52,6 +52,14 @@ $page_title = 'Chi tiết khách hàng';
 <?php include_once ROOT_PATH . 'includes/header.php'; ?>
 
 <div class="container-fluid mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="../dashboard.php">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="index.php">Quản Lý Khách Hàng</a></li>
+            <li class="breadcrumb-item active"><?php echo esc($customer['full_name'] ?? 'Chi Tiết'); ?></li>
+        </ol>
+    </nav>
     <div class="row">
         <div class="col-md-4">
             <!-- Thông tin khách hàng -->
@@ -164,7 +172,7 @@ $page_title = 'Chi tiết khách hàng';
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="../../admin/bookings/view.php?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-info">
+                                            <a href="../bookings/view.php?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-info">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                         </td>

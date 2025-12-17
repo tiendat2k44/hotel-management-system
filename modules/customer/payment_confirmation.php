@@ -46,7 +46,7 @@ try {
 // Xử lý thanh toán
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $payment_type = $_POST['payment_type'] ?? 'deposit';
-    $amount = $_POST['amount'] ?? 0;
+    $amount = floatval($_POST['amount'] ?? 0);
     $notes = trim($_POST['notes'] ?? '');
     
     // Validate
@@ -55,10 +55,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     $nights = calculateNights($booking['check_in'], $booking['check_out']);
-    $total_invoice = $booking['total_amount'] * 1.1; // Include VAT
+    $deposit_required = calculateDeposit($booking['base_price'], $nights);
+    $total_invoice = calculateInvoiceTotal($booking['total_amount']);
     
-    if ($payment_type === 'final' && $amount != $total_invoice) {
-        $errors[] = 'Số tiền thanh toán cuối cùng phải bằng tổng hóa đơn (' . formatCurrency($total_invoice) . ')';
+    // Validate theo loại thanh toán
+    if ($payment_type === 'deposit') {
+        // Cọc phải bằng 30% tổng tiền phòng
+        if (abs($amount - $deposit_required) > 0.01) {
+            $errors[] = 'Tiền cọc phải bằng 30% giá phòng (' . formatCurrency($deposit_required) . ')';
+        }
+    } elseif ($payment_type === 'final') {
+        // Thanh toán final phải bằng tổng hóa đơn
+        if (abs($amount - $total_invoice) > 0.01) {
+            $errors[] = 'Thanh toán cuối cùng phải bằng tổng hóa đơn (' . formatCurrency($total_invoice) . ')';
+        }
     }
     
     if (empty($errors)) {
@@ -89,11 +99,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($payment_type === 'final') {
                 $stmt = $pdo->prepare("UPDATE bookings SET status = 'confirmed' WHERE id = :id");
                 $stmt->execute(['id' => $booking_id]);
+                $msg = 'Thanh toán thành công! Booking đã được xác nhận.';
+            } else {
+                $msg = 'Thanh toán cọc thành công! Vui lòng thanh toán phần còn lại khi nhận phòng.';
             }
             
-            logActivity($pdo, $_SESSION['user_id'], 'PAYMENT', 'Thanh toán booking ' . $booking['booking_code']);
+            logActivity($pdo, $_SESSION['user_id'], 'PAYMENT', 'Thanh toán (' . $payment_type . ') booking ' . $booking['booking_code']);
             
-            setFlash('success', 'Thanh toán thành công! Booking của bạn đã được xác nhận.');
+            setFlash('success', $msg);
             redirect('booking_detail.php?id=' . $booking_id);
             
         } catch (PDOException $e) {
@@ -105,8 +118,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 $nights = calculateNights($booking['check_in'], $booking['check_out']);
 $subtotal = $booking['total_amount'];
-$tax = $subtotal * 0.1;
-$total_invoice = $subtotal + $tax;
+$tax = $subtotal * (VAT_RATE / 100);
+$total_invoice = calculateInvoiceTotal($subtotal);
+$deposit_required = calculateDeposit($booking['base_price'], $nights);
 
 $page_title = 'Xác nhận thanh toán';
 ?>
@@ -161,28 +175,28 @@ $page_title = 'Xác nhận thanh toán';
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="payment_type" class="form-label">Loại thanh toán *</label>
-                                <select class="form-select" id="payment_type" name="payment_type" required>
-                                    <option value="deposit">Thanh toán tiền cọc</option>
-                                    <option value="final">Thanh toán toàn bộ</option>
+                                <select class="form-select" id="payment_type" name="payment_type" required onchange="updatePaymentAmount()">
+                                    <option value="deposit">Thanh toán tiền cọc (30%)</option>
+                                    <option value="final">Thanh toán cuối cùng</option>
                                 </select>
+                                <small class="text-muted d-block mt-1">
+                                    <strong>Tiền cọc (30%):</strong> <?php echo formatCurrency($deposit_required); ?><br>
+                                    <strong>Thanh toán cuối:</strong> <?php echo formatCurrency($total_invoice); ?>
+                                </small>
                             </div>
                             <div class="col-md-6">
                                 <label for="payment_method" class="form-label">Phương thức thanh toán</label>
-                                <input type="text" class="form-control" value="<?php 
-                                    $methods = ['cash' => 'Tiền mặt', 'bank_transfer' => 'Chuyển khoản', 'credit_card' => 'Thẻ tín dụng'];
-                                    echo $methods[$payment_method] ?? $payment_method;
-                                ?>" disabled>
+                                <input type="text" class="form-control" value="<?php echo getPaymentMethodLabel($payment_method); ?>" disabled>
                             </div>
                         </div>
                         
                         <div class="mb-3">
                             <label for="amount" class="form-label">Số tiền thanh toán (VND) *</label>
                             <input type="number" class="form-control form-control-lg" id="amount" name="amount" 
-                                   value="<?php echo $booking['deposit_amount'] > 0 ? $booking['deposit_amount'] : $booking['total_amount']; ?>" 
-                                   min="0" step="1000" required>
-                            <small class="text-muted">
-                                Tiền cọc: <?php echo formatCurrency($booking['deposit_amount']); ?><br>
-                                Tổng hóa đơn: <?php echo formatCurrency($total_invoice); ?>
+                                   value="<?php echo intval($deposit_required); ?>" 
+                                   min="0" step="1000" required readonly>
+                            <small class="text-muted d-block mt-1" id="amount_info">
+                                Hệ thống sẽ tự động tính tiền dựa trên loại thanh toán bạn chọn.
                             </small>
                         </div>
                         
@@ -261,4 +275,26 @@ $page_title = 'Xác nhận thanh toán';
     </div>
 </div>
 
-<?php include_once ROOT_PATH . 'includes/footer.php'; ?>
+<script>
+function updatePaymentAmount() {
+    const paymentType = document.getElementById('payment_type').value;
+    const amountInput = document.getElementById('amount');
+    const amountInfo = document.getElementById('amount_info');
+    
+    const baseAmount = <?php echo $booking['total_amount']; ?>;
+    const totalInvoice = <?php echo $total_invoice; ?>;
+    const depositAmount = <?php echo $deposit_required; ?>;
+    
+    if (paymentType === 'deposit') {
+        amountInput.value = Math.round(depositAmount);
+        amountInfo.textContent = 'Tiền cọc (30% giá phòng): ' + new Intl.NumberFormat('vi-VN').format(Math.round(depositAmount)) + ' ₫';
+    } else {
+        amountInput.value = Math.round(totalInvoice);
+        amountInfo.textContent = 'Thanh toán toàn bộ hóa đơn (gồm VAT <?php echo VAT_RATE; ?>%): ' + new Intl.NumberFormat('vi-VN').format(Math.round(totalInvoice)) + ' ₫';
+    }
+}
+
+// Gọi lần đầu khi load trang
+document.addEventListener('DOMContentLoaded', updatePaymentAmount);
+</script>
+

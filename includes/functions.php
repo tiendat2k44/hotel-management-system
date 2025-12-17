@@ -249,4 +249,91 @@ function logActivity($pdo, $user_id, $action, $description = '') {
     error_log("[" . date('Y-m-d H:i:s') . "] User {$user_id}: {$action} - {$description}");
 }
 
+/**
+ * Tính tiền cọc (30% giá phòng)
+ */
+function calculateDeposit($base_price, $nights = 1) {
+    return $base_price * $nights * 0.3;
+}
+
+/**
+ * Tính tổng hóa đơn (gồm VAT 10%)
+ */
+function calculateInvoiceTotal($base_amount) {
+    return $base_amount * 1.1;
+}
+
+/**
+ * Format status badge cho booking
+ */
+function getStatusBadge($status) {
+    $badges = [
+        'pending' => ['class' => 'warning', 'text' => 'Chờ xác nhận'],
+        'confirmed' => ['class' => 'info', 'text' => 'Đã xác nhận'],
+        'checked_in' => ['class' => 'success', 'text' => 'Đã nhận phòng'],
+        'checked_out' => ['class' => 'secondary', 'text' => 'Đã trả phòng'],
+        'cancelled' => ['class' => 'danger', 'text' => 'Đã hủy']
+    ];
+    
+    $badge = $badges[$status] ?? ['class' => 'secondary', 'text' => 'Không xác định'];
+    return '<span class="badge bg-' . $badge['class'] . '">' . $badge['text'] . '</span>';
+}
+
+/**
+ * Format payment method
+ */
+function getPaymentMethodLabel($method) {
+    $methods = [
+        'cash' => 'Tiền mặt',
+        'bank_transfer' => 'Chuyển khoản',
+        'credit_card' => 'Thẻ tín dụng'
+    ];
+    return $methods[$method] ?? 'N/A';
+}
+
+/**
+ * Format payment type
+ */
+function getPaymentTypeLabel($type) {
+    $types = [
+        'deposit' => 'Tiền cọc',
+        'final' => 'Thanh toán cuối'
+    ];
+    return $types[$type] ?? 'N/A';
+}
+
+/**
+ * Check booking conflict (kiểm tra phòng có bị trùng không)
+ */
+function checkBookingConflict($pdo, $room_id, $check_in, $check_out, $exclude_booking_id = null) {
+    try {
+        $query = "
+            SELECT COUNT(*) as count FROM bookings
+            WHERE room_id = :room_id
+            AND status IN ('pending', 'confirmed', 'checked_in')
+            AND check_in < :check_out
+            AND check_out > :check_in
+        ";
+        
+        $params = [
+            'room_id' => $room_id,
+            'check_in' => $check_in,
+            'check_out' => $check_out
+        ];
+        
+        if ($exclude_booking_id) {
+            $query .= " AND id != :exclude_id";
+            $params['exclude_id'] = $exclude_booking_id;
+        }
+        
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($params);
+        return $stmt->fetch()['count'] > 0;
+    } catch (PDOException $e) {
+        error_log("Lỗi kiểm tra conflict: " . $e->getMessage());
+        return false;
+    }
+}
+
+
 ?>

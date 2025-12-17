@@ -120,6 +120,7 @@ $page_title = 'Quản lý phòng';
                 <table class="table table-hover">
                     <thead class="table-dark">
                         <tr>
+                            <th width="80">Hình ảnh</th>
                             <th>Số phòng</th>
                             <th>Loại phòng</th>
                             <th>Tầng</th>
@@ -133,6 +134,31 @@ $page_title = 'Quản lý phòng';
                     <tbody>
                         <?php foreach ($rooms as $room): ?>
                             <tr>
+                                <td>
+                                    <?php if (!empty($room['image_url'])): ?>
+                                        <a href="view.php?id=<?php echo $room['id']; ?>" data-bs-toggle="tooltip" title="Xem chi tiết">
+                                            <?php if (strpos($room['image_url'], 'http') === 0): ?>
+                                                <!-- URL từ internet -->
+                                                <img src="<?php echo esc($room['image_url']); ?>" 
+                                                     alt="Room <?php echo esc($room['room_number']); ?>" 
+                                                     class="img-thumbnail" 
+                                                     style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;">
+                                            <?php else: ?>
+                                                <!-- URL từ server -->
+                                                <img src="<?php echo BASE_URL . esc($room['image_url']); ?>" 
+                                                     alt="Room <?php echo esc($room['room_number']); ?>" 
+                                                     class="img-thumbnail" 
+                                                     style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;"
+                                                     onerror="this.src='<?php echo BASE_URL; ?>assets/images/no-image.png'">
+                                            <?php endif; ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" 
+                                             style="width: 60px; height: 60px; font-size: 0.7rem;">
+                                            No Image
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
                                 <td><strong><?php echo esc($room['room_number']); ?></strong></td>
                                 <td><?php echo esc($room['type_name']); ?></td>
                                 <td><?php echo $room['floor']; ?></td>
@@ -173,6 +199,10 @@ $page_title = 'Quản lý phòng';
                                     <?php endif; ?>
                                 </td>
                                 <td>
+                                    <a href="view.php?id=<?php echo $room['id']; ?>" 
+                                       class="btn btn-sm btn-info" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                     <a href="edit.php?id=<?php echo $room['id']; ?>" 
                                        class="btn btn-sm btn-warning" title="Chỉnh sửa">
                                         <i class="fas fa-edit"></i>

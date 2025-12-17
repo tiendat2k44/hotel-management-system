@@ -35,6 +35,19 @@ try {
         die('Booking không tồn tại hoặc bạn không có quyền truy cập');
     }
     
+    // Khách tự xác nhận đã đến
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'mark_arrived') {
+        if (in_array($booking['status'], ['pending', 'confirmed'], true)) {
+            $stmt = $pdo->prepare("UPDATE bookings SET status = 'checked_in' WHERE id = :id");
+            $stmt->execute(['id' => $booking_id]);
+            logActivity($pdo, $_SESSION['user_id'], 'CHECKIN_SELF', 'Khách tự báo đã nhận phòng ' . $booking['booking_code']);
+            setFlash('success', 'Bạn đã xác nhận đã đến nhận phòng.');
+        } else {
+            setFlash('warning', 'Booking không thể chuyển sang trạng thái đã nhận phòng.');
+        }
+        redirect('booking_detail.php?id=' . $booking_id);
+    }
+    
     // Lấy danh sách dịch vụ đã sử dụng
     $stmt = $pdo->prepare("
         SELECT su.*, s.service_name, s.price, s.unit
@@ -119,6 +132,14 @@ $page_title = 'Chi tiết booking';
                                     <?php echo $status_texts[$booking['status']] ?? 'Không xác định'; ?>
                                 </span>
                             </p>
+                            <?php if (in_array($booking['status'], ['pending', 'confirmed'])): ?>
+                                <form method="POST" class="mt-2">
+                                    <input type="hidden" name="action" value="mark_arrived">
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="fas fa-walking"></i> Tôi đã đến nhận phòng
+                                    </button>
+                                </form>
+                            <?php endif; ?>
                         </div>
                     </div>
                     
@@ -168,8 +189,16 @@ $page_title = 'Chi tiết booking';
             
             <!-- Bảng giá tính hóa đơn -->
             <div class="card shadow mb-4">
-                <div class="card-header bg-info text-white">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-file-invoice-dollar"></i> Hóa đơn</h5>
+                    <div class="btn-group" role="group">
+                        <a href="invoice.php?id=<?php echo $booking_id; ?>&format=pdf" class="btn btn-sm btn-light" title="Xuất PDF">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                        <a href="invoice.php?id=<?php echo $booking_id; ?>&format=excel" class="btn btn-sm btn-light" title="Xuất Excel">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <!-- Phòng -->
@@ -241,9 +270,10 @@ $page_title = 'Chi tiết booking';
                     </p>
                     
                     <?php if ($remaining > 0): ?>
-                        <button class="btn btn-warning w-100 mb-2" disabled>
-                            <i class="fas fa-lock"></i> Thanh toán (Sắp có)
-                        </button>
+                        <a class="btn btn-warning w-100 mb-2" href="payment_confirmation.php?booking_id=<?php echo $booking_id; ?>&payment_method=bank_transfer">
+                            <i class="fas fa-university"></i> Thanh toán chuyển khoản
+                        </a>
+                        <small class="text-muted d-block text-center mb-2">Chuyển khoản trước khi nhận phòng để xác nhận nhanh.</small>
                     <?php else: ?>
                         <div class="alert alert-success">
                             <i class="fas fa-check-circle"></i> Đã thanh toán đầy đủ

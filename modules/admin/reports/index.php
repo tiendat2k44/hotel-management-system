@@ -95,7 +95,7 @@ $page_title = 'Báo cáo';
                                     COUNT(DISTINCT payment_type) as payment_types
                                 FROM payments
                                 WHERE status = 'completed' 
-                                AND DATE(created_at) BETWEEN :from AND :to
+                                AND DATE(payment_date) BETWEEN :from AND :to
                             ");
                             $stmt->execute(['from' => $date_from, 'to' => $date_to]);
                             $revenue = $stmt->fetch();
@@ -147,7 +147,7 @@ $page_title = 'Báo cáo';
                                             SUM(amount) as total
                                         FROM payments
                                         WHERE status = 'completed'
-                                        AND DATE(created_at) BETWEEN :from AND :to
+                                        AND DATE(payment_date) BETWEEN :from AND :to
                                         GROUP BY payment_method
                                         ORDER BY total DESC
                                     ");
@@ -202,7 +202,7 @@ $page_title = 'Báo cáo';
                                             SUM(amount) as total
                                         FROM payments
                                         WHERE status = 'completed'
-                                        AND DATE(created_at) BETWEEN :from AND :to
+                                        AND DATE(payment_date) BETWEEN :from AND :to
                                         GROUP BY payment_type
                                         ORDER BY total DESC
                                     ");
@@ -426,6 +426,7 @@ $page_title = 'Báo cáo';
                                             c.id,
                                             u.full_name,
                                             u.email,
+                                            u.created_at as created_at,
                                             COUNT(b.id) as booking_count,
                                             SUM(b.total_amount) as total_spent
                                         FROM customers c

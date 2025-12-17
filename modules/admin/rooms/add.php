@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $floor = $_POST['floor'] ?? '';
     $status = $_POST['status'] ?? 'available';
     $notes = trim($_POST['notes'] ?? '');
+    $image_url = '';
     
     // Validate
     if (empty($room_number)) {
@@ -40,6 +41,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors[] = 'Tầng không được để trống';
     }
     
+    // Xử lý upload file hình ảnh
+    if (!empty($_FILES['room_image']['name'])) {
+        $file = $_FILES['room_image'];
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $max_size = 5 * 1024 * 1024; // 5MB
+        
+        if (!in_array($file['type'], $allowed_types)) {
+            $errors[] = 'Định dạng hình ảnh không hợp lệ. Chỉ hỗ trợ JPG, PNG, GIF, WebP';
+        } elseif ($file['size'] > $max_size) {
+            $errors[] = 'Kích thước hình ảnh quá lớn (tối đa 5MB)';
+        } elseif ($file['error'] !== UPLOAD_ERR_OK) {
+            $errors[] = 'Lỗi upload file: ' . $file['error'];
+        } else {
+            $upload_dir = UPLOAD_PATH . 'rooms/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0755, true);
+            }
+            
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = 'room_' . time() . '_' . uniqid() . '.' . $ext;
+            $filepath = $upload_dir . $filename;
+            
+            if (move_uploaded_file($file['tmp_name'], $filepath)) {
+                $image_url = 'assets/uploads/rooms/' . $filename;
+            } else {
+                $errors[] = 'Lỗi khi lưu file hình ảnh';
+            }
+        }
+    } elseif (!empty($_POST['image_url_external'])) {
+        $image_url = trim($_POST['image_url_external']);
+    }
+    
     if (empty($errors)) {
         try {
             // Kiểm tra số phòng đã tồn tại
@@ -50,8 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $errors[] = 'Số phòng này đã tồn tại';
             } else {
                 $stmt = $pdo->prepare("
-                    INSERT INTO rooms (room_number, room_type_id, floor, status, notes)
-                    VALUES (:room_number, :room_type_id, :floor, :status, :notes)
+                    INSERT INTO rooms (room_number, room_type_id, floor, status, notes, image_url)
+                    VALUES (:room_number, :room_type_id, :floor, :status, :notes, :image_url)
                 ");
                 
                 $stmt->execute([
@@ -59,7 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     'room_type_id' => $room_type_id,
                     'floor' => $floor,
                     'status' => $status,
-                    'notes' => $notes
+                    'notes' => $notes,
+                    'image_url' => $image_url
                 ]);
                 
                 setFlash('success', 'Thêm phòng thành công');
@@ -93,7 +127,7 @@ $page_title = 'Thêm phòng';
                         </div>
                     <?php endif; ?>
                     
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="room_number" class="form-label">Số phòng *</label>
@@ -131,6 +165,32 @@ $page_title = 'Thêm phòng';
                             </div>
                         </div>
                         
+                        <!-- Hình ảnh phòng -->
+                        <div class="mb-4">
+                            <h6 class="mb-3"><i class="fas fa-image"></i> Hình ảnh phòng</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="room_image" class="form-label">Upload hình ảnh (JPG, PNG, GIF, WebP, tối đa 5MB)</label>
+                                    <input type="file" class="form-control" id="room_image" name="room_image" 
+                                           accept="image/jpeg,image/png,image/gif,image/webp">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle"></i> Preview hình ảnh sẽ hiển thị dưới đây
+                                    </small>
+                                    <div id="image_preview" class="mt-3">
+                                        <!-- Preview sẽ hiển thị ở đây -->
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="image_url_external" class="form-label">Hoặc nhập URL hình ảnh từ internet</label>
+                                    <input type="url" class="form-control" id="image_url_external" name="image_url_external" 
+                                           placeholder="https://example.com/room-image.jpg">
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="fas fa-info-circle"></i> Bỏ qua nếu upload file ở phía trái
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="mb-3">
                             <label for="notes" class="form-label">Ghi chú</label>
                             <textarea class="form-control" id="notes" name="notes" rows="3"><?php echo esc($_POST['notes'] ?? ''); ?></textarea>
@@ -145,6 +205,28 @@ $page_title = 'Thêm phòng';
                             </a>
                         </div>
                     </form>
+                    
+                    <script>
+                    document.getElementById('room_image').addEventListener('change', function(e) {
+                        const file = e.target.files[0];
+                        const preview = document.getElementById('image_preview');
+                        
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function(event) {
+                                preview.innerHTML = `
+                                    <div class="border rounded p-2">
+                                        <img src="${event.target.result}" class="img-fluid rounded" style="max-height: 200px;">
+                                        <small class="text-muted d-block mt-2">Kích thước file: ${(file.size / 1024).toFixed(2)} KB</small>
+                                    </div>
+                                `;
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            preview.innerHTML = '';
+                        }
+                    });
+                    </script>
                 </div>
             </div>
         </div>

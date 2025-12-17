@@ -63,8 +63,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         try {
             $stmt = $pdo->prepare("UPDATE bookings SET status = 'confirmed' WHERE id = :id");
             $stmt->execute(['id' => $booking_id]);
+            
+            // Update room status to occupied when admin confirms
+            $stmt = $pdo->prepare("UPDATE rooms SET status = 'occupied' WHERE id = :id");
+            $stmt->execute(['id' => $booking['room_id']]);
+            
             logActivity($pdo, $_SESSION['user_id'], 'CONFIRM_BOOKING', 'Xác nhận booking ' . $booking['booking_code']);
-            setFlash('success', 'Xác nhận booking thành công');
+            setFlash('success', 'Xác nhận booking thành công. Phòng đã được đánh dấu là đã đặt.');
             redirect('view.php?id=' . $booking_id);
         } catch (PDOException $e) {
             $errors[] = 'Lỗi: ' . $e->getMessage();
@@ -97,12 +102,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             ");
             $stmt->execute(['id' => $booking_id]);
             
-            // Update room status
-            $stmt = $pdo->prepare("UPDATE rooms SET status = 'cleaning' WHERE id = :id");
+            // Update room status to available (ready for next guest)
+            $stmt = $pdo->prepare("UPDATE rooms SET status = 'available' WHERE id = :id");
             $stmt->execute(['id' => $booking['room_id']]);
             
             logActivity($pdo, $_SESSION['user_id'], 'CHECK_OUT', 'Check-out booking ' . $booking['booking_code']);
-            setFlash('success', 'Check-out thành công');
+            setFlash('success', 'Check-out thành công. Phòng đã sẵn sàng cho khách tiếp theo.');
             redirect('view.php?id=' . $booking_id);
         } catch (PDOException $e) {
             $errors[] = 'Lỗi: ' . $e->getMessage();

@@ -33,11 +33,20 @@ function requireLogin() {
 function requireRole($roles) {
     requireLogin();
     
+    // Normalize roles to lower-case strings for tolerant comparison
+    $normalize = function ($value) {
+        return strtolower(trim($value));
+    };
+    
+    $userRole = isset($_SESSION['role']) ? $normalize($_SESSION['role']) : '';
+    
     if (is_string($roles)) {
         $roles = array($roles);
     }
     
-    if (!in_array($_SESSION['role'], $roles)) {
+    $allowedRoles = array_map($normalize, $roles);
+    
+    if (!in_array($userRole, $allowedRoles, true)) {
         header('Location: ' . BASE_URL . 'index.php');
         exit();
     }

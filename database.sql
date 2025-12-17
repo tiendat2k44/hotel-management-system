@@ -193,19 +193,19 @@ CREATE TABLE IF NOT EXISTS invoices (
 -- Dữ liệu mẫu
 -- ============================================
 
--- Admin user
+-- Admin user (password: 123456)
 INSERT INTO users (username, password, email, full_name, phone, role, status) 
-VALUES ('admin', '$2y$12$8/6rX9vFT8W5VgkQHYZkeO8z3wVwBXcVxMqb8DY1G8H7oH0kQcjyu', 
+VALUES ('admin', '$2y$12$8ZHc7bpP7XO2d1BN2LZ3HeiU0uBLqN0C8rjI6XNzQD7L8J3qpQ3Cm', 
         'admin@hotel.com', 'Admin', '0123456789', 'admin', 'active');
 
--- Staff user
+-- Staff user (password: 123456)
 INSERT INTO users (username, password, email, full_name, phone, role, status) 
-VALUES ('staff1', '$2y$12$8/6rX9vFT8W5VgkQHYZkeO8z3wVwBXcVxMqb8DY1G8H7oH0kQcjyu', 
+VALUES ('staff1', '$2y$12$8ZHc7bpP7XO2d1BN2LZ3HeiU0uBLqN0C8rjI6XNzQD7L8J3qpQ3Cm', 
         'staff@hotel.com', 'Nhân viên 1', '0987654321', 'staff', 'active');
 
--- Customer user
+-- Customer user (password: 123456)
 INSERT INTO users (username, password, email, full_name, phone, role, status) 
-VALUES ('customer1', '$2y$12$8/6rX9vFT8W5VgkQHYZkeO8z3wVwBXcVxMqb8DY1G8H7oH0kQcjyu', 
+VALUES ('customer1', '$2y$12$8ZHc7bpP7XO2d1BN2LZ3HeiU0uBLqN0C8rjI6XNzQD7L8J3qpQ3Cm', 
         'customer@email.com', 'Nguyễn Văn A', '0912345678', 'customer', 'active');
 
 -- Room types

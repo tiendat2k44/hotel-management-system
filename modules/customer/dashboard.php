@@ -3,10 +3,10 @@
  * Customer Dashboard
  */
 
-require_once '../../../config/constants.php';
-require_once '../../../config/database.php';
-require_once '../../../includes/functions.php';
-require_once '../../../includes/auth_check.php';
+require_once '../../config/constants.php';
+require_once '../../config/database.php';
+require_once '../../includes/functions.php';
+require_once '../../includes/auth_check.php';
 
 requireRole(ROLE_CUSTOMER);
 
@@ -213,7 +213,7 @@ $page_title = 'Dashboard khách hàng';
                     <a href="search_rooms.php" class="btn btn-success w-100 mb-2 btn-lg">
                         <i class="fas fa-search"></i> Tìm Phòng Trống
                     </a>
-                    <a href="../../index.php#featured-rooms" class="btn btn-outline-success w-100">
+                    <a href="<?php echo BASE_URL; ?>index.php#featured-rooms" class="btn btn-outline-success w-100">
                         <i class="fas fa-star"></i> Xem Phòng Nổi Bật
                     </a>
                 </div>
@@ -239,7 +239,7 @@ $page_title = 'Dashboard khách hàng';
                     <p class="mb-2"><strong>Tên:</strong> <?php echo esc($customer_info['full_name'] ?? ''); ?></p>
                     <p class="mb-2"><strong>Email:</strong> <?php echo esc($customer_info['email'] ?? ''); ?></p>
                     <p class="mb-3"><strong>Điện thoại:</strong> <?php echo esc($customer_info['phone'] ?? 'Chưa cập nhật'); ?></p>
-                    <a href="../auth/profile.php" class="btn btn-info btn-sm w-100">
+                    <a href="<?php echo BASE_URL; ?>modules/auth/profile.php" class="btn btn-info btn-sm w-100">
                         <i class="fas fa-edit"></i> Chỉnh sửa hồ sơ
                     </a>
                 </div>

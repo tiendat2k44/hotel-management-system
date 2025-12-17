@@ -209,10 +209,10 @@ VALUES ('customer1', '$2y$12$8/6rX9vFT8W5VgkQHYZkeO8z3wVwBXcVxMqb8DY1G8H7oH0kQcj
         'customer@email.com', 'Nguyễn Văn A', '0912345678', 'customer', 'active');
 
 -- Room types
-INSERT INTO room_types (type_name, description, base_price, capacity, amenities) VALUES
-('Standard', 'Phòng tiêu chuẩn với tiện ích cơ bản', 500000, 2, 'Giường đơn/đôi, Phòng tắm, TV'),
-('Deluxe', 'Phòng sang trọng với tầm nhìn đẹp', 800000, 2, 'Giường King, Ban công, TV 4K, Minibar'),
-('Suite', 'Phòng cao cấp với phòng khách riêng', 1500000, 4, 'Phòng ngủ riêng, Phòng khách, Bếp, Jacuzzi');
+INSERT INTO room_types (type_name, description, base_price, capacity, amenities, status) VALUES
+('Standard', 'Phòng tiêu chuẩn với tiện ích cơ bản', 500000, 2, 'Giường đơn/đôi, Phòng tắm, TV', 'active'),
+('Deluxe', 'Phòng sang trọng với tầm nhìn đẹp', 800000, 2, 'Giường King, Ban công, TV 4K, Minibar', 'active'),
+('Suite', 'Phòng cao cấp với phòng khách riêng', 1500000, 4, 'Phòng ngủ riêng, Phòng khách, Bếp, Jacuzzi', 'active');
 
 -- Rooms
 INSERT INTO rooms (room_number, room_type_id, floor) VALUES

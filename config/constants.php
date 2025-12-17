@@ -22,6 +22,8 @@ if ($__basePath === '') {
 	// Fallback: dùng tên thư mục chứa dự án
 	$__basePath = basename($__rootPath);
 }
+// Chuẩn hoá backslashes (Windows) thành forward slashes để hợp lệ trong URL
+$__basePath = str_replace('\\', '/', $__basePath);
 define('BASE_URL', $__protocol . $__host . '/' . ($__basePath ? $__basePath . '/' : ''));
 define('ADMIN_URL', BASE_URL . 'modules/admin/');
 define('STAFF_URL', BASE_URL . 'modules/staff/');

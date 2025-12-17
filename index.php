@@ -99,6 +99,77 @@ $page_title = 'Trang chủ';
         </div>
     </div>
     
+    <!-- Phòng nổi bật -->
+    <section class="mb-5">
+        <div class="text-center mb-4">
+            <h2 class="mb-2">✨ Phòng Nổi Bật</h2>
+            <p class="text-muted">Những phòng được ưa chuộng nhất với giá tốt</p>
+        </div>
+        <div class="row">
+            <?php
+            // Lấy 3 phòng nổi bật (giá tốt nhất, có sẵn)
+            try {
+                $stmt = $pdo->prepare("
+                    SELECT r.id, r.room_number, rt.type_name, rt.base_price, rt.capacity, rt.description, rt.amenities
+                    FROM rooms r
+                    JOIN room_types rt ON r.room_type_id = rt.id
+                    WHERE r.status = 'available'
+                    ORDER BY rt.base_price ASC
+                    LIMIT 3
+                ");
+                $stmt->execute();
+                $featured_rooms = $stmt->fetchAll();
+            } catch (PDOException $e) {
+                $featured_rooms = [];
+            }
+            
+            foreach ($featured_rooms as $room):
+            ?>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm border-primary">
+                        <div class="card-header bg-primary text-white text-center">
+                            <h5 class="mb-0"><i class="fas fa-star"></i> Phòng <?php echo esc($room['room_number']); ?></h5>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="text-primary"><?php echo esc($room['type_name']); ?></h6>
+                            <p class="card-text text-muted"><?php echo esc($room['description']); ?></p>
+                            <div class="mb-3">
+                                <span class="badge bg-info"><i class="fas fa-users"></i> <?php echo $room['capacity']; ?> người</span>
+                            </div>
+                            <?php if (!empty($room['amenities'])): ?>
+                                <div class="mb-3">
+                                    <small class="text-muted"><i class="fas fa-check-circle text-success"></i> <?php echo esc($room['amenities']); ?></small>
+                                </div>
+                            <?php endif; ?>
+                            <h4 class="text-primary mb-3"><?php echo formatCurrency($room['base_price']); ?><small class="text-muted">/đêm</small></h4>
+                            <?php if (isLoggedIn()): ?>
+                                <a href="modules/customer/search_rooms.php?check_in=<?php echo date('Y-m-d'); ?>&check_out=<?php echo date('Y-m-d', strtotime('+1 day')); ?>" 
+                                   class="btn btn-success w-100 btn-lg">
+                                    <i class="fas fa-calendar-check"></i> Đặt Phòng Ngay
+                                </a>
+                            <?php else: ?>
+                                <a href="modules/auth/login.php" class="btn btn-outline-primary w-100 btn-lg">
+                                    <i class="fas fa-sign-in-alt"></i> Đăng nhập để đặt
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <div class="text-center mt-4">
+            <?php if (isLoggedIn()): ?>
+                <a href="modules/customer/search_rooms.php" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search"></i> Xem Tất Cả Phòng
+                </a>
+            <?php else: ?>
+                <a href="modules/auth/login.php" class="btn btn-primary btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Đăng nhập để xem phòng
+                </a>
+            <?php endif; ?>
+        </div>
+    </section>
+    
     <!-- Danh sách loại phòng -->
     <section class="mb-5">
         <h2 class="mb-4 text-center">Loại Phòng Của Chúng Tôi</h2>

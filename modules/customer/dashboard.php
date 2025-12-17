@@ -176,14 +176,17 @@ $page_title = 'Dashboard khách hàng';
         
         <!-- Quick actions -->
         <div class="col-md-4">
-            <div class="card shadow mb-4">
+            <div class="card shadow mb-4 border-success">
                 <div class="card-header bg-success text-white">
-                    <h6 class="mb-0"><i class="fas fa-calendar-plus"></i> Đặt phòng</h6>
+                    <h6 class="mb-0"><i class="fas fa-calendar-plus"></i> Đặt phòng mới</h6>
                 </div>
                 <div class="card-body">
-                    <p>Bạn muốn đặt thêm phòng?</p>
-                    <a href="../../index.php" class="btn btn-success w-100">
-                        <i class="fas fa-search"></i> Tìm phòng
+                    <p class="mb-3"><i class="fas fa-info-circle text-primary"></i> Bạn muốn đặt thêm phòng?</p>
+                    <a href="search_rooms.php" class="btn btn-success w-100 mb-2 btn-lg">
+                        <i class="fas fa-search"></i> Tìm Phòng Trống
+                    </a>
+                    <a href="../../index.php#featured-rooms" class="btn btn-outline-success w-100">
+                        <i class="fas fa-star"></i> Xem Phòng Nổi Bật
                     </a>
                 </div>
             </div>

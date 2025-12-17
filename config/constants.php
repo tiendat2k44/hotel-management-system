@@ -8,14 +8,28 @@ define('APP_NAME', 'Hotel Management System');
 define('APP_VERSION', '1.0.0');
 define('COMPANY_NAME', 'Khách Sạn ABC');
 
-// URL paths
-define('BASE_URL', 'http://localhost/hotel-management-system/');
+// URL paths (tự động xác định BASE_URL theo môi trường)
+// Tạo BASE_URL động để tránh lỗi 404 khi thư mục dự án đổi tên
+$__protocol = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off') ? 'https://' : 'http://';
+$__host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$__docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/');
+$__rootPath = realpath(__DIR__ . '/..');
+$__basePath = '';
+if ($__docRoot && $__rootPath && strpos($__rootPath, $__docRoot) === 0) {
+	$__basePath = trim(str_replace($__docRoot, '', $__rootPath), '/');
+}
+if ($__basePath === '') {
+	// Fallback: dùng tên thư mục chứa dự án
+	$__basePath = basename($__rootPath);
+}
+define('BASE_URL', $__protocol . $__host . '/' . ($__basePath ? $__basePath . '/' : ''));
 define('ADMIN_URL', BASE_URL . 'modules/admin/');
 define('STAFF_URL', BASE_URL . 'modules/staff/');
 define('CUSTOMER_URL', BASE_URL . 'modules/customer/');
 
 // File paths
-define('ROOT_PATH', dirname(dirname(__FILE__)) . '/');
+define('ROOT_PATH', __DIR__ . '/../');
+define('BASE_DIR', __DIR__ . '/..');
 define('UPLOAD_PATH', ROOT_PATH . 'assets/uploads/');
 define('IMAGE_PATH', ROOT_PATH . 'assets/images/');
 

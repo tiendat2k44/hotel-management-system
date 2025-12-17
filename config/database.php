@@ -10,6 +10,11 @@ define('DB_PASS', '');
 define('DB_NAME', 'hotel_management_db');
 define('DB_CHARSET', 'utf8mb4');
 
+// Ensure constants are loaded
+if (!defined('ROOT_PATH')) {
+    require_once __DIR__ . '/constants.php';
+}
+
 // PDO connection
 try {
     $pdo = new PDO(

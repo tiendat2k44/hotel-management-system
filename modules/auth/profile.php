@@ -3,8 +3,9 @@
  * Trang hồ sơ cá nhân
  */
 
-require_once '../../config/database.php';
+// Load constants first
 require_once '../../config/constants.php';
+require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 require_once '../../includes/auth_check.php';
 

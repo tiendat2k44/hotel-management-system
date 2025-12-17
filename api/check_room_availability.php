@@ -3,8 +3,8 @@
  * API: Kiểm tra phòng có sẵn
  */
 
-require_once '../config/database.php';
 require_once '../config/constants.php';
+require_once '../config/database.php';
 require_once '../includes/functions.php';
 
 header('Content-Type: application/json');

@@ -58,6 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $user = $stmt->fetch();
             
             if ($user && password_verify($password, $user['password'])) {
+                // Tái tạo session ID sau khi xác thực để tránh session fixation
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    session_regenerate_id(true);
+                }
                 // Đăng nhập thành công
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];

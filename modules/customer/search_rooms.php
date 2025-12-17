@@ -28,29 +28,24 @@ try {
     if (strtotime($check_out) <= strtotime($check_in)) {
         $error = 'Ngày check-out phải sau ngày check-in';
     } else {
-        // Tìm phòng trống
+        // Tìm phòng trống: tránh trùng khoảng ngày theo cột đúng (check_in, check_out)
         $stmt = $pdo->prepare("
             SELECT r.id, r.room_number, rt.type_name, rt.base_price, rt.capacity, rt.description, rt.amenities
             FROM rooms r
             JOIN room_types rt ON r.room_type_id = rt.id
-            WHERE r.status = 'available' 
-            AND rt.capacity >= ?
-            AND r.id NOT IN (
-                SELECT room_id FROM bookings 
-                WHERE status IN ('confirmed', 'checked_in')
-                AND (
-                    (check_in_date < ? AND check_out_date > ?)
-                    OR (check_in_date < ? AND check_out_date > ?)
-                    OR (check_in_date >= ? AND check_out_date <= ?)
-                )
-            )
+            WHERE r.status = 'available'
+              AND rt.capacity >= :guests
+              AND r.id NOT IN (
+                  SELECT room_id FROM bookings 
+                  WHERE status IN ('pending','confirmed','checked_in')
+                    AND (check_in < :check_out AND check_out > :check_in)
+              )
             ORDER BY rt.base_price ASC
         ");
         $stmt->execute([
-            $guests,
-            $check_out, $check_in,
-            $check_out, $check_in,
-            $check_in, $check_out
+            'guests' => $guests,
+            'check_in' => $check_in,
+            'check_out' => $check_out
         ]);
         $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

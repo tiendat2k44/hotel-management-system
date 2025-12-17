@@ -14,9 +14,16 @@ if (isLoggedIn()) {
     logActivity($pdo, $_SESSION['user_id'], 'LOGOUT', 'Đăng xuất');
 }
 
-// Huỷ session
+// Huỷ session an toàn
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$_SESSION = [];
 session_unset();
 session_destroy();
+if (session_status() === PHP_SESSION_NONE || session_status() === PHP_SESSION_ACTIVE) {
+    session_regenerate_id(true);
+}
 
 // Xoá cookie nhớ đăng nhập
 setcookie('remember_token', '', time() - 3600, '/');

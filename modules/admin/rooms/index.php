@@ -16,11 +16,14 @@ $status_filter = $_GET['status'] ?? '';
 $type_filter = $_GET['type'] ?? '';
 
 try {
-    // Lấy danh sách phòng
+    // Lấy danh sách phòng với thông tin booking
     $query = "
-        SELECT r.*, rt.type_name, rt.base_price
+        SELECT r.*, rt.type_name, rt.base_price,
+               COUNT(CASE WHEN b.status IN ('pending','confirmed','checked_in') THEN 1 END) as booking_count,
+               MAX(CASE WHEN b.status IN ('pending','confirmed','checked_in') THEN b.check_out END) as next_available
         FROM rooms r
         JOIN room_types rt ON r.room_type_id = rt.id
+        LEFT JOIN bookings b ON r.id = b.room_id AND b.status IN ('pending','confirmed','checked_in')
         WHERE 1=1
     ";
     
@@ -41,7 +44,7 @@ try {
         $params['type_id'] = $type_filter;
     }
     
-    $query .= " ORDER BY r.floor, r.room_number";
+    $query .= " GROUP BY r.id ORDER BY r.floor, r.room_number";
     
     $stmt = $pdo->prepare($query);
     $stmt->execute($params);
@@ -122,6 +125,8 @@ $page_title = 'Quản lý phòng';
                             <th>Tầng</th>
                             <th>Giá cơ bản</th>
                             <th>Trạng thái</th>
+                            <th>Booking</th>
+                            <th>Khả dụng</th>
                             <th>Thao tác</th>
                         </tr>
                     </thead>
@@ -152,12 +157,28 @@ $page_title = 'Quản lý phòng';
                                     </span>
                                 </td>
                                 <td>
+                                    <?php echo $room['booking_count']; ?>
+                                    <?php if ($room['booking_count'] > 0): ?>
+                                        <small class="text-muted d-block">Đang có đặt phòng</small>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if (!empty($room['next_available'])): ?>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar-check"></i>
+                                            <?php echo formatDate($room['next_available']); ?>
+                                        </small>
+                                    <?php else: ?>
+                                        <span class="badge bg-success">Luôn trống</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
                                     <a href="edit.php?id=<?php echo $room['id']; ?>" 
-                                       class="btn btn-sm btn-warning">
+                                       class="btn btn-sm btn-warning" title="Chỉnh sửa">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="delete.php?id=<?php echo $room['id']; ?>" 
-                                       class="btn btn-sm btn-danger" 
+                                       class="btn btn-sm btn-danger" title="Xóa"
                                        onclick="return confirm('Bạn chắc chứ?')">
                                         <i class="fas fa-trash"></i>
                                     </a>

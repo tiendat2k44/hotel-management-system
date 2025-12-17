@@ -139,9 +139,9 @@ require_once ROOT_PATH . 'includes/header.php';
                                 </h5>
                             </div>
                             
-                            <a href="../../modules/admin/bookings/create.php?room_id=<?php echo $room['id']; ?>&check_in=<?php echo $check_in; ?>&check_out=<?php echo $check_out; ?>" 
-                               class="btn btn-primary btn-sm w-100">
-                                <i class="fas fa-check"></i> Đặt Phòng
+                            <a href="book_room.php?room_id=<?php echo $room['id']; ?>&check_in=<?php echo $check_in; ?>&check_out=<?php echo $check_out; ?>&guests=<?php echo $guests; ?>" 
+                               class="btn btn-success btn-sm w-100">
+                                <i class="fas fa-calendar-check"></i> Đặt Phòng
                             </a>
                         </div>
                     </div>

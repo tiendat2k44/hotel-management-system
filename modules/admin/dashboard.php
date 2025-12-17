@@ -17,30 +17,57 @@ try {
     $stmt->execute();
     $total_rooms = $stmt->fetch()['count'];
     
-    // Phòng trống
-    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM rooms WHERE status = 'available'");
+    // Phòng trống (không có booking đang hoạt động)
+    $stmt = $pdo->prepare("
+        SELECT COUNT(DISTINCT r.id) as count FROM rooms r
+        LEFT JOIN bookings b ON r.id = b.room_id 
+            AND b.status IN ('pending','confirmed','checked_in')
+            AND b.check_out > NOW()
+        WHERE r.status = 'available' AND b.id IS NULL
+    ");
     $stmt->execute();
     $available_rooms = $stmt->fetch()['count'];
+    
+    // Phòng đang sử dụng (checked_in)
+    $stmt = $pdo->prepare("
+        SELECT COUNT(DISTINCT r.id) as count FROM rooms r
+        JOIN bookings b ON r.id = b.room_id AND b.status = 'checked_in'
+    ");
+    $stmt->execute();
+    $occupied_rooms = $stmt->fetch()['count'];
     
     // Booking hôm nay
     $stmt = $pdo->prepare("
         SELECT COUNT(*) as count FROM bookings 
-        WHERE DATE(check_in) = DATE(NOW()) 
-        AND status IN ('confirmed', 'checked_in')
+        WHERE DATE(check_in) = CURDATE()
     ");
     $stmt->execute();
     $today_bookings = $stmt->fetch()['count'];
     
+    // Doanh thu hôm nay
+    $stmt = $pdo->prepare("
+        SELECT COALESCE(SUM(amount), 0) as total FROM payments 
+        WHERE DATE(payment_date) = CURDATE() AND status = 'completed'
+    ");
+    $stmt->execute();
+    $today_revenue = $stmt->fetch()['total'];
+    
     // Doanh thu tháng này
     $stmt = $pdo->prepare("
-        SELECT COALESCE(SUM(amount), 0) as total 
-        FROM payments 
-        WHERE MONTH(payment_date) = MONTH(NOW())
-        AND YEAR(payment_date) = YEAR(NOW())
-        AND status = 'completed'
+        SELECT COALESCE(SUM(amount), 0) as total FROM payments 
+        WHERE MONTH(payment_date) = MONTH(NOW()) 
+            AND YEAR(payment_date) = YEAR(NOW()) 
+            AND status = 'completed'
     ");
     $stmt->execute();
     $monthly_revenue = $stmt->fetch()['total'];
+    
+    // Booking chưa xác nhận
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) as count FROM bookings WHERE status = 'pending'
+    ");
+    $stmt->execute();
+    $pending_bookings = $stmt->fetch()['count'];
     
     // Booking gần đây
     $stmt = $pdo->prepare("

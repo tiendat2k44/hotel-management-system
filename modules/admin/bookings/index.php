@@ -52,7 +52,7 @@ try {
 $page_title = 'Quản lý đặt phòng';
 ?>
 
-<?php include_once '../../../../includes/header.php'; ?>
+<?php include_once '../../../includes/header.php'; ?>
 
 <div class="container-fluid mt-4">
     <div class="card shadow">
@@ -162,4 +162,4 @@ $page_title = 'Quản lý đặt phòng';
     </div>
 </div>
 
-<?php include_once '../../../../includes/footer.php'; ?>
+<?php include_once '../../../includes/footer.php'; ?>

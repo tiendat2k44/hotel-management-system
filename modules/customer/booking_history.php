@@ -45,7 +45,7 @@ try {
 $page_title = 'Lịch sử booking';
 ?>
 
-<?php include_once '../../../includes/header.php'; ?>
+<?php include_once '../../includes/header.php'; ?>
 
 <div class="container-fluid mt-4">
     <div class="card shadow">
@@ -140,4 +140,4 @@ $page_title = 'Lịch sử booking';
     </div>
 </div>
 
-<?php include_once '../../../includes/footer.php'; ?>
+<?php include_once '../../includes/footer.php'; ?>

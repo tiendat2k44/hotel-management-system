@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $page_title = 'Thêm phòng';
 ?>
 
-<?php include_once '../../../../includes/header.php'; ?>
+<?php include_once '../../../includes/header.php'; ?>
 
 <div class="container-fluid mt-4">
     <div class="row">
@@ -151,4 +151,4 @@ $page_title = 'Thêm phòng';
     </div>
 </div>
 
-<?php include_once '../../../../includes/footer.php'; ?>
+<?php include_once '../../../includes/footer.php'; ?>

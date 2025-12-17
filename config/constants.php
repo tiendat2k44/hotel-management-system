@@ -8,33 +8,67 @@ define('APP_NAME', 'Hotel Management System');
 define('APP_VERSION', '1.0.0');
 define('COMPANY_NAME', 'Khách Sạn ABC');
 
-// URL paths (tự động xác định BASE_URL theo môi trường)
-// Tạo BASE_URL động để tránh lỗi 404 khi thư mục dự án đổi tên
+// ===================================================================
+// QUICK FIX: If automatic BASE_URL calculation is failing,
+// uncomment and modify the line below with your actual URL:
+// ===================================================================
+// For XAMPP at http://localhost/TienDat123/hotel-management-system-main/
+// define('BASE_URL', 'http://localhost/TienDat123/hotel-management-system-main/');
+//
+// For production at https://yourdomain.com/
+// define('BASE_URL', 'https://yourdomain.com/hotel-management-system-main/');
+// ===================================================================
+
+// URL paths (tính BASE_URL dựa vào SCRIPT_FILENAME và DOCUMENT_ROOT)
 $__protocol = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off') ? 'https://' : 'http://';
 $__host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$__scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
 $__basePath = '';
 
-// Phương pháp 1: Dùng SCRIPT_NAME để xác định base path
-// SCRIPT_NAME có dạng: /hotel-management-system-main/config/constants.php
-// Tách lấy phần /hotel-management-system-main/
-if (strpos($__scriptName, '/config/constants.php') !== false) {
-	$__basePath = str_replace('/config/constants.php', '', $__scriptName);
-	$__basePath = trim($__basePath, '/');
-} else {
-	// Fallback: dùng tên thư mục chứa dự án
-	$__docRoot = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/');
-	$__rootPath = realpath(__DIR__ . '/..');
-	if ($__docRoot && $__rootPath && strpos($__rootPath, $__docRoot) === 0) {
-		$__basePath = trim(str_replace($__docRoot, '', $__rootPath), '/');
-	}
-	if ($__basePath === '') {
-		$__basePath = basename($__rootPath);
-	}
+// Cách 1: Tính từ REQUEST_URI (most reliable in web context)
+// REQUEST_URI: /TienDat123/hotel-management-system-main/config/constants.php
+$__requestUri = $_SERVER['REQUEST_URI'] ?? '';
+if (!empty($__requestUri)) {
+    $__requestUri = parse_url($__requestUri, PHP_URL_PATH);
+    
+    // Bỏ phần /config/constants.php
+    if (strpos($__requestUri, '/config/constants.php') !== false) {
+        $__basePath = str_replace('/config/constants.php', '', $__requestUri);
+        $__basePath = trim($__basePath, '/');
+    } elseif (strpos($__requestUri, '/index.php') !== false) {
+        // Bỏ phần /index.php
+        $__basePath = str_replace('/index.php', '', $__requestUri);
+        $__basePath = trim($__basePath, '/');
+    } elseif (strpos($__requestUri, '/modules/') !== false) {
+        // Bỏ phần /modules/...
+        $__parts = explode('/modules/', $__requestUri);
+        $__basePath = trim($__parts[0], '/');
+    }
 }
 
-// Chuẩn hoá backslashes (Windows) thành forward slashes để hợp lệ trong URL
-$__basePath = str_replace('\\', '/', $__basePath);
+// Fallback 2: Dùng SCRIPT_FILENAME nếu REQUEST_URI không có
+if (empty($__basePath)) {
+    $__scriptFilename = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'] ?? '');
+    $__documentRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
+    
+    if ($__documentRoot && $__scriptFilename && strpos($__scriptFilename, $__documentRoot) === 0) {
+        // Tách phần path từ document root
+        // SCRIPT_FILENAME: /xampp/htdocs/TienDat123/hotel-management-system-main/config/constants.php
+        // DOCUMENT_ROOT: /xampp/htdocs
+        // Kết quả cần: TienDat123/hotel-management-system-main
+        
+        $__relativePath = trim(str_replace($__documentRoot, '', $__scriptFilename), '/');
+        // $__relativePath = TienDat123/hotel-management-system-main/config/constants.php
+        
+        // Bỏ /config/constants.php từ cuối
+        $__basePath = preg_replace('#/config/constants\.php$#', '', $__relativePath);
+    }
+}
+
+// Fallback 3: Dùng tên thư mục (nếu không tìm thấy)
+if (empty($__basePath)) {
+    $__basePath = basename(dirname(__DIR__));
+}
+
 define('BASE_URL', $__protocol . $__host . '/' . ($__basePath ? $__basePath . '/' : ''));
 define('ADMIN_URL', BASE_URL . 'modules/admin/');
 define('STAFF_URL', BASE_URL . 'modules/staff/');

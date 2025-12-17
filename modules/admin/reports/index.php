@@ -4,10 +4,10 @@
  * Báo cáo doanh thu, bookings, khách hàng
  */
 
-require_once '../../config/constants.php';
-require_once '../../config/database.php';
-require_once '../../includes/functions.php';
-require_once '../../includes/auth_check.php';
+require_once '../../../config/constants.php';
+require_once '../../../config/database.php';
+require_once '../../../includes/functions.php';
+require_once '../../../includes/auth_check.php';
 
 requireRole(ROLE_ADMIN);
 
@@ -24,7 +24,7 @@ $page_title = 'Báo cáo';
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="../dashboard.php">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="<?php echo ADMIN_URL; ?>dashboard.php">Dashboard</a></li>
             <li class="breadcrumb-item active">Báo cáo</li>
         </ol>
     </nav>

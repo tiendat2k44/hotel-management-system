@@ -3,10 +3,10 @@
  * Xem chi tiết khách hàng
  */
 
-require_once '../../config/constants.php';
-require_once '../../config/database.php';
-require_once '../../includes/functions.php';
-require_once '../../includes/auth_check.php';
+require_once '../../../config/constants.php';
+require_once '../../../config/database.php';
+require_once '../../../includes/functions.php';
+require_once '../../../includes/auth_check.php';
 
 requireRole([ROLE_ADMIN, ROLE_STAFF]);
 
@@ -55,7 +55,7 @@ $page_title = 'Chi tiết khách hàng';
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="../dashboard.php">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="<?php echo ADMIN_URL; ?>dashboard.php">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="index.php">Quản Lý Khách Hàng</a></li>
             <li class="breadcrumb-item active"><?php echo esc($customer['full_name'] ?? 'Chi Tiết'); ?></li>
         </ol>

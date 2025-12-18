@@ -1,12 +1,13 @@
 <?php
 /**
  * Các hằng số chung của hệ thống
+ * File này định nghĩa tất cả các hằng số và đường dẫn được dùng trong toàn bộ ứng dụng
  */
 
-// Application info
-define('APP_NAME', 'Hotel Management System');
-define('APP_VERSION', '1.0.0');
-define('COMPANY_NAME', 'Khách Sạn ABC');
+// Thông tin ứng dụng
+define('APP_NAME', 'Hotel Management System');  // Tên ứng dụng
+define('APP_VERSION', '1.0.0');                // Phiên bản
+define('COMPANY_NAME', 'Khách Sạn ABC');       // Tên khách sạn
 
 // ===================================================================
 // QUICK FIX: If automatic BASE_URL calculation is failing,

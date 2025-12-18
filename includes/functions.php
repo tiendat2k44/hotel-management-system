@@ -28,12 +28,13 @@ function requireLogin() {
 }
 
 /**
- * Redirect nếu không có quyền
+ * Kiểm tra quyền truy cập (admin, staff, customer)
+ * Chuyển hướng về trang chủ nếu không đủ quyền
  */
 function requireRole($roles) {
     requireLogin();
     
-    // Normalize roles to lower-case strings for tolerant comparison
+    // Chuẩn hóa role về chữ thường để so sánh không phân biệt hoa/thường
     $normalize = function ($value) {
         return strtolower(trim($value));
     };
@@ -53,7 +54,9 @@ function requireRole($roles) {
 }
 
 /**
- * Escape HTML output để tránh XSS
+ * Escape HTML output để tránh XSS (Cross-Site Scripting)
+ * Chuyển các ký tự đặc biệt thành HTML entities
+ * VD: <script> thành &lt;script&gt;
  */
 function esc($text) {
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
@@ -61,6 +64,7 @@ function esc($text) {
 
 /**
  * Format tiền tệ Việt Nam
+ * VD: 1000000 -> 1.000.000 đ
  */
 function formatCurrency($amount) {
     return number_format($amount, 0, ',', '.') . ' ' . CURRENCY_SYMBOL;
@@ -84,6 +88,7 @@ function formatDateTime($datetime, $format = 'd/m/Y H:i') {
 
 /**
  * Validate email
+ * Kiểm tra email có đúng định dạng hay không
  */
 function validateEmail($email) {
     return filter_var($email, FILTER_VALIDATE_EMAIL);
@@ -91,6 +96,7 @@ function validateEmail($email) {
 
 /**
  * Validate phone number (Việt Nam)
+ * Chấp nhận: 0123456789 hoặc +84123456789 (9-10 số)
  */
 function validatePhone($phone) {
     return preg_match('/^(0|\+84)(\d{9,10})$/', $phone);
@@ -106,6 +112,7 @@ function validateDate($date, $format = 'Y-m-d') {
 
 /**
  * Generate unique booking code
+ * Tạo mã đặt phòng duy nhất dạng: BK20231215143022[random]
  */
 function generateBookingCode() {
     return 'BK' . date('YmdHis') . rand(1000, 9999);
@@ -113,6 +120,7 @@ function generateBookingCode() {
 
 /**
  * Generate unique payment code
+ * Tạo mã thanh toán duy nhất dạng: PY20231215143022[random]
  */
 function generatePaymentCode() {
     return 'PY' . date('YmdHis') . rand(1000, 9999);
@@ -120,23 +128,26 @@ function generatePaymentCode() {
 
 /**
  * Generate unique invoice code
+ * Tạo mã hóa đơn dạng: INV202312[random]
  */
 function generateInvoiceCode() {
     return 'INV' . date('Ym') . rand(10000, 99999);
 }
 
 /**
- * Kiểm tra phòng trống
+ * Kiểm tra phòng còn trống trong khoảng thời gian check_in -> check_out
+ * Return: true nếu phòng trống, false nếu đã có booking trùng
  */
 function isRoomAvailable($pdo, $room_id, $check_in, $check_out) {
     try {
+        // Đếm số booking trùng ngày với phòng này
         $stmt = $pdo->prepare("
             SELECT COUNT(*) as count 
             FROM bookings 
             WHERE room_id = :room_id 
-            AND status IN ('confirmed', 'checked_in')
+            AND status IN ('confirmed', 'checked_in')  -- Chỉ kiểm tra booking đang hoạt động
             AND (
-                (check_in < :check_out AND check_out > :check_in)
+                (check_in < :check_out AND check_out > :check_in)  -- Điều kiện trùng khoảng thời gian
             )
         ");
         

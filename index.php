@@ -25,8 +25,21 @@ try {
     $stmt->execute();
     $room_types = $stmt->fetchAll();
     
+    // Lấy tối đa 12 phòng có hình ảnh và đang trống để hiển thị trên trang chủ
+    $stmt = $pdo->prepare("
+        SELECT r.id, r.room_number, r.image_url, rt.type_name, rt.base_price, rt.capacity
+        FROM rooms r
+        JOIN room_types rt ON r.room_type_id = rt.id
+        WHERE r.image_url IS NOT NULL AND r.image_url != '' AND r.status = 'available'
+        ORDER BY r.floor, r.room_number
+        LIMIT 12
+    ");
+    $stmt->execute();
+    $rooms_with_images = $stmt->fetchAll();
+    
 } catch (PDOException $e) {
     error_log($e->getMessage());
+    $rooms_with_images = [];
 }
 
 $page_title = 'Trang chủ';
@@ -105,6 +118,45 @@ $page_title = 'Trang chủ';
             <h2 class="mb-2">✨ Phòng Nổi Bật</h2>
             <p class="text-muted">Những phòng được ưa chuộng nhất với giá tốt</p>
         </div>
+        
+        <!-- Grid hình ảnh phòng -->
+        <?php if (!empty($rooms_with_images)): ?>
+        <div class="row g-4 mb-5">
+            <?php foreach (array_slice($rooms_with_images, 0, 6) as $room): ?>
+                <div class="col-lg-2 col-md-3 col-sm-4">
+                    <div class="card h-100 shadow-sm room-card" style="cursor: pointer; overflow: hidden;">
+                        <div style="height: 200px; background-color: #f0f0f0; overflow: hidden; position: relative;">
+                            <?php if (strpos($room['image_url'], 'http') === 0): ?>
+                                <img src="<?php echo esc($room['image_url']); ?>" 
+                                     alt="<?php echo esc($room['room_number']); ?>" 
+                                     class="w-100 h-100"
+                                     style="object-fit: cover; transition: transform 0.3s;"
+                                     onmouseover="this.style.transform='scale(1.1)'" 
+                                     onmouseout="this.style.transform='scale(1)'">
+                            <?php else: ?>
+                                <img src="<?php echo BASE_URL . esc($room['image_url']); ?>" 
+                                     alt="<?php echo esc($room['room_number']); ?>" 
+                                     class="w-100 h-100"
+                                     style="object-fit: cover; transition: transform 0.3s;"
+                                     onmouseover="this.style.transform='scale(1.1)'" 
+                                     onmouseout="this.style.transform='scale(1)'"
+                                     onerror="this.src='<?php echo BASE_URL; ?>assets/images/no-image.png'">
+                            <?php endif; ?>
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge bg-success"><i class="fas fa-check"></i> Trống</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-3">
+                            <h6 class="card-title mb-1">Phòng <?php echo esc($room['room_number']); ?></h6>
+                            <small class="text-muted d-block mb-2"><?php echo esc($room['type_name']); ?></small>
+                            <small class="text-success fw-bold"><?php echo formatCurrency($room['base_price']); ?>/đêm</small>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+        
         <div class="row">
             <?php
             // Lấy 3 phòng nổi bật (giá tốt nhất, có sẵn)
@@ -159,7 +211,10 @@ $page_title = 'Trang chủ';
         </div>
         <div class="text-center mt-4">
             <?php if (isLoggedIn()): ?>
-                <a href="modules/customer/search_rooms.php" class="btn btn-primary btn-lg">
+                <a href="modules/customer/gallery.php" class="btn btn-primary btn-lg me-2">
+                    <i class="fas fa-images"></i> Xem Thư Viện Ảnh
+                </a>
+                <a href="modules/customer/search_rooms.php" class="btn btn-secondary btn-lg">
                     <i class="fas fa-search"></i> Xem Tất Cả Phòng
                 </a>
             <?php else: ?>

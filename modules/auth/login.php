@@ -1,14 +1,15 @@
 <?php
 /**
  * Trang đăng nhập
+ * Cho phép user nhập username/password để đăng nhập vào hệ thống
+ * Sau khi đăng nhập thành công, redirect đến dashboard tùy theo role (admin/staff/customer)
  */
 
-// Khởi tạo
-// Load constants first
-require_once '../../config/constants.php';
-require_once '../../config/database.php';
-require_once '../../includes/functions.php';
-require_once '../../includes/auth_check.php';
+// Khởi tạo - Load các file cấu hình và function cần thiết
+require_once '../../config/constants.php';    // Hằng số hệ thống
+require_once '../../config/database.php';     // Kết nối database
+require_once '../../includes/functions.php';  // Các hàm tiện ích
+require_once '../../includes/auth_check.php'; // Kiểm tra session
 
 // Nếu đã đăng nhập, redirect tới dashboard
 if (isLoggedIn()) {
@@ -24,13 +25,13 @@ if (isLoggedIn()) {
 $errors = [];
 $success = false;
 
-// Xử lý form đăng nhập
+// Xử lý form đăng nhập khi user nhấn nút Submit
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = trim($_POST['username'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $remember = isset($_POST['remember']);
+    $username = trim($_POST['username'] ?? '');  // Lấy username từ form
+    $password = $_POST['password'] ?? '';         // Lấy password từ form
+    $remember = isset($_POST['remember']);        // Checkbox "Ghi nhớ đăng nhập"
     
-    // Validate
+    // Validate dữ liệu đầu vào
     if (empty($username)) {
         $errors[] = 'Tên đăng nhập không được để trống';
     }
@@ -40,14 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if (empty($errors)) {
         try {
-            // Kiểm tra user
+            // Tìm user trong database theo username hoặc email
+            // LEFT JOIN với bảng customers để lấy customer_id (nếu là khách hàng)
             $stmt = $pdo->prepare("
                 SELECT u.*, 
                 CASE WHEN c.id IS NOT NULL THEN c.id ELSE NULL END as customer_id
                 FROM users u
                 LEFT JOIN customers c ON u.id = c.user_id
                 WHERE (u.username = :username OR u.email = :email) 
-                AND u.status = 'active'
+                AND u.status = 'active'  -- Chỉ lấy tài khoản đang hoạt động
             ");
             
             $stmt->execute([
@@ -57,12 +59,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             $user = $stmt->fetch();
             
+            // Kiểm tra password: So sánh password nhập vào với hash trong database
             if ($user && password_verify($password, $user['password'])) {
-                // Tái tạo session ID sau khi xác thực để tránh session fixation
+                // Tái tạo session ID để tránh session fixation attack (bảo mật)
                 if (session_status() === PHP_SESSION_ACTIVE) {
                     session_regenerate_id(true);
                 }
-                // Đăng nhập thành công
+                // Đăng nhập thành công - Lưu thông tin user vào session
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['full_name'] = $user['full_name'];

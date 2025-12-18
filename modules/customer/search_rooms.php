@@ -28,9 +28,10 @@ try {
     if (strtotime($check_out) <= strtotime($check_in)) {
         $error = 'Ngày check-out phải sau ngày check-in';
     } else {
-        // Tìm phòng trống: tránh trùng khoảng ngày theo cột đúng (check_in, check_out)
+        // Tìm phòng trống trong khoảng thời gian check_in -> check_out
+        // Bao gồm cả hình ảnh phòng để hiển thị
         $stmt = $pdo->prepare("
-            SELECT r.id, r.room_number, rt.type_name, rt.base_price, rt.capacity, rt.description, rt.amenities
+            SELECT r.id, r.room_number, r.image_url, rt.type_name, rt.base_price, rt.capacity, rt.description, rt.amenities
             FROM rooms r
             JOIN room_types rt ON r.room_type_id = rt.id
             WHERE r.status = 'available'
@@ -112,16 +113,34 @@ require_once ROOT_PATH . 'includes/header.php';
             ?>
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100 shadow-sm">
+                        <!-- Hình ảnh phòng -->
+                        <?php if (!empty($room['image_url'])): ?>
+                            <div style="height: 220px; background-color: #f0f0f0; overflow: hidden;">
+                                <?php if (strpos($room['image_url'], 'http') === 0): ?>
+                                    <img src="<?php echo esc($room['image_url']); ?>" 
+                                         alt="<?php echo esc($room['room_number']); ?>" 
+                                         class="w-100 h-100"
+                                         style="object-fit: cover;">
+                                <?php else: ?>
+                                    <img src="<?php echo BASE_URL . esc($room['image_url']); ?>" 
+                                         alt="<?php echo esc($room['room_number']); ?>" 
+                                         class="w-100 h-100"
+                                         style="object-fit: cover;"
+                                         onerror="this.src='<?php echo BASE_URL; ?>assets/images/no-image.png'">
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
+                        
                         <div class="card-body">
                             <h5 class="card-title">
                                 <i class="fas fa-door-open"></i> 
-                                Phòng <?php echo htmlspecialchars($room['room_number']); ?>
+                                Phòng <?php echo esc($room['room_number']); ?>
                             </h5>
                             <p class="card-text">
-                                <strong><?php echo htmlspecialchars($room['type_name']); ?></strong>
+                                <strong><?php echo esc($room['type_name']); ?></strong>
                             </p>
                             <p class="card-text text-muted">
-                                <?php echo htmlspecialchars($room['description'] ?? ''); ?>
+                                <?php echo esc($room['description'] ?? ''); ?>
                             </p>
                             <div class="mb-3">
                                 <span class="badge bg-info">Sức chứa: <?php echo $room['capacity']; ?> người</span>

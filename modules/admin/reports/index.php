@@ -1,7 +1,8 @@
 <?php
 /**
  * Trang báo cáo - Admin
- * Báo cáo doanh thu, bookings, khách hàng
+ * Báo cáo 4 loại: doanh thu, bookings, khách hàng, tỷ lệ chiếm dụng phòng
+ * Cho phép lọc theo ngày và xuất Excel/PDF
  */
 
 require_once '../../../config/constants.php';
@@ -9,7 +10,7 @@ require_once '../../../config/database.php';
 require_once '../../../includes/functions.php';
 require_once '../../../includes/auth_check.php';
 
-requireRole(ROLE_ADMIN);
+requireRole(ROLE_ADMIN);  // Chỉ admin xem được báo cáo
 
 $report_type = $_GET['type'] ?? 'revenue';
 $date_from = $_GET['from'] ?? date('Y-m-01');

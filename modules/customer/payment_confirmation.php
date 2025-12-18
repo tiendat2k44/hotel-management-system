@@ -1,6 +1,8 @@
 <?php
 /**
  * Trang xác nhận thanh toán booking - Khách hàng
+ * Khách hàng có thể thanh toán: đặt cọc (deposit) hoặc thanh toán đủ (final)
+ * Hỗ trợ các phương thức: tiền mặt, chuyển khoản, thẻ tín dụng
  */
 
 require_once '../../config/constants.php';
@@ -8,7 +10,7 @@ require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 require_once '../../includes/auth_check.php';
 
-requireRole(ROLE_CUSTOMER);
+requireRole(ROLE_CUSTOMER);  // Chỉ khách hàng mới thanh toán được
 
 $booking_id = $_GET['booking_id'] ?? 0;
 $payment_method = $_GET['payment_method'] ?? 'cash';
@@ -23,14 +25,15 @@ $errors = [];
 $success = false;
 
 try {
-    // Lấy thông tin booking
+    // Lấy thông tin booking của khách hàng đang đăng nhập
+    // Kiểm tra customer_id để đảm bảo khách chỉ thấy booking của mình
     $stmt = $pdo->prepare("
         SELECT b.*, r.room_number, rt.type_name, rt.base_price, u.full_name
         FROM bookings b
         JOIN rooms r ON b.room_id = r.id
         JOIN room_types rt ON r.room_type_id = rt.id
         JOIN users u ON b.created_by = u.id
-        WHERE b.id = :id AND b.customer_id = :customer_id
+        WHERE b.id = :id AND b.customer_id = :customer_id  -- Bảo mật: chỉ lấy booking của mình
     ");
     $stmt->execute([
         'id' => $booking_id,
@@ -42,7 +45,7 @@ try {
         die('Booking không tồn tại');
     }
 
-    // Tổng tiền đã thanh toán
+    // Tính tổng tiền đã thanh toán (từ bảng payments)
     $stmt = $pdo->prepare("SELECT COALESCE(SUM(amount), 0) as total_paid FROM payments WHERE booking_id = :id AND status = 'completed'");
     $stmt->execute(['id' => $booking_id]);
     $total_paid = floatval($stmt->fetch()['total_paid'] ?? 0);
@@ -52,17 +55,13 @@ try {
     die('Lỗi: ' . $e->getMessage());
 }
 
-// Xử lý thanh toán
-if (!isset($total_paid)) {
-    $total_paid = 0;
-}
-
-$nights = calculateNights($booking['check_in'], $booking['check_out']);
-$subtotal = $booking['total_amount'];
-$tax = $subtotal * (VAT_RATE / 100);
-$total_invoice = calculateInvoiceTotal($subtotal);
-$deposit_required = calculateDeposit($booking['base_price'], $nights);
-$remaining_amount = max(0, $total_invoice - $total_paid);
+// Tính toán các số tiền
+$nights = calculateNights($booking['check_in'], $booking['check_out']);  // Số đêm
+$subtotal = $booking['total_amount'];                                   // Tổng tiền phòng
+$tax = $subtotal * (VAT_RATE / 100);                                   // Thuế VAT
+$total_invoice = calculateInvoiceTotal($subtotal);                     // Tổng cộng (bao gồm thuế)
+$deposit_required = calculateDeposit($booking['base_price'], $nights); // Tiền đặt cọc yêu cầu
+$remaining_amount = max(0, $total_invoice - $total_paid);              // Số tiền còn lại
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $payment_type = $_POST['payment_type'] ?? 'deposit';
@@ -114,12 +113,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'processed_by' => $_SESSION['user_id']
             ]);
             
-            // Cập nhật trạng thái booking và phòng
+            // Cập nhật trạng thái booking và phòng sau khi thanh toán
             if ($payment_type === 'final') {
                 $stmt = $pdo->prepare("UPDATE bookings SET status = 'confirmed' WHERE id = :id");
                 $stmt->execute(['id' => $booking_id]);
                 
-                // Update room status to occupied after full payment
+                // Đánh dấu phòng đã được đặt sau khi thanh toán đủ
                 $stmt = $pdo->prepare("UPDATE rooms SET status = 'occupied' WHERE id = :room_id");
                 $stmt->execute(['room_id' => $booking['room_id']]);
                 

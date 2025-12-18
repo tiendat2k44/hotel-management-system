@@ -1,6 +1,8 @@
 <?php
 /**
  * Trang đặt phòng - Khách hàng
+ * Cho phép khách hàng đặt phòng với thông tin: ngày check-in, check-out, số người
+ * Tính tiền tự động dựa trên giá phòng và số đêm
  */
 
 require_once '../../config/constants.php';
@@ -8,7 +10,7 @@ require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 require_once '../../includes/auth_check.php';
 
-requireRole(ROLE_CUSTOMER);
+requireRole(ROLE_CUSTOMER);  // Chỉ customer mới đặt phòng được
 
 $room_id = $_GET['room_id'] ?? 0;
 $check_in = $_GET['check_in'] ?? date('Y-m-d');
@@ -21,12 +23,13 @@ $errors = [];
 $success = false;
 
 try {
-    // Lấy thông tin phòng
+    // Lấy thông tin chi tiết phòng từ database
+    // JOIN với room_types để lấy loại phòng, giá, sức chứa, tiện nghi
     $stmt = $pdo->prepare("
         SELECT r.*, rt.type_name, rt.base_price, rt.capacity, rt.description, rt.amenities
         FROM rooms r
         JOIN room_types rt ON r.room_type_id = rt.id
-        WHERE r.id = :id AND r.status = 'available'
+        WHERE r.id = :id AND r.status = 'available'  -- Chỉ hiển thị phòng available
     ");
     $stmt->execute(['id' => $room_id]);
     $room = $stmt->fetch();
@@ -60,12 +63,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if (empty($errors)) {
         try {
-            // Tính tiền
+            // Tính tổng tiền: giá phòng × số đêm
             $nights = calculateNights($check_in, $check_out);
             $total_amount = $room['base_price'] * $nights;
-            $booking_code = generateBookingCode();
+            $booking_code = generateBookingCode();  // Tạo mã booking unique
             
-            // Tạo booking
+            // Insert booking mới vào database
             $stmt = $pdo->prepare("
                 INSERT INTO bookings (
                     booking_code, customer_id, room_id, check_in, check_out,

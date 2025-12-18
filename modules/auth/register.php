@@ -1,13 +1,15 @@
 <?php
 /**
- * Trang đăng ký
+ * Trang đăng ký tài khoản mới
+ * Cho phép khách hàng tạo tài khoản mới trong hệ thống
+ * Tự động tạo 2 bản ghi: 1 trong bảng users, 1 trong bảng customers
  */
 
-// Load constants first
-require_once '../../config/constants.php';
-require_once '../../config/database.php';
-require_once '../../includes/functions.php';
-require_once '../../includes/auth_check.php';
+// Load các file cấu hình cần thiết
+require_once '../../config/constants.php';    // Hằng số
+require_once '../../config/database.php';     // Kết nối DB
+require_once '../../includes/functions.php';  // Hàm tiện ích
+require_once '../../includes/auth_check.php'; // Kiểm tra session
 
 // Nếu đã đăng nhập, redirect
 if (isLoggedIn()) {
@@ -17,14 +19,14 @@ if (isLoggedIn()) {
 $errors = [];
 $success = false;
 
-// Xử lý form đăng ký
+// Xử lý form đăng ký khi user nhấn Submit
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = trim($_POST['username'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $confirm_password = $_POST['confirm_password'] ?? '';
-    $full_name = trim($_POST['full_name'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
+    $username = trim($_POST['username'] ?? '');           // Tên đăng nhập
+    $email = trim($_POST['email'] ?? '');                 // Email
+    $password = $_POST['password'] ?? '';                 // Mật khẩu
+    $confirm_password = $_POST['confirm_password'] ?? ''; // Xác nhận mật khẩu
+    $full_name = trim($_POST['full_name'] ?? '');         // Họ tên đầy đủ
+    $phone = trim($_POST['phone'] ?? '');                 // Số điện thoại
     
     // Validate
     if (empty($username)) {

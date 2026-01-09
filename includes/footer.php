@@ -15,7 +15,11 @@
                     <h5>Liên hệ</h5>
                     <ul class="list-unstyled text-muted">
                         <li><i class="fas fa-phone"></i> Hotline: 1900-1234</li>
+<<<<<<< HEAD
                         <li><i class="fas fa-envelope"></i> Email: Dathotel@hotel.com</li>
+=======
+                        <li><i class="fas fa-envelope"></i> Email: DatHotel@hotel.com</li>
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
                         <li><i class="fas fa-map-marker-alt"></i> Địa chỉ: Sơn La, Việt Nam</li>
                     </ul>
                 </div>

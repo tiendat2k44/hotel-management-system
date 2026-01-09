@@ -1,6 +1,12 @@
 <?php
 /**
+<<<<<<< HEAD
  * Staff Dashboard
+=======
+ * Staff Dashboard - Trang chủ nhân viên
+ * Hiển thị thống kê và danh sách công việc cần làm (check-in, check-out)
+ * Nhân viên không thấy doanh thu (khác với admin)
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
  */
 
 require_once '../../config/constants.php';
@@ -8,16 +14,28 @@ require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 require_once '../../includes/auth_check.php';
 
+<<<<<<< HEAD
 requireRole([ROLE_STAFF, ROLE_ADMIN]);
 
 // Lấy thống kê
 try {
     // Tổng số phòng
+=======
+requireRole([ROLE_STAFF, ROLE_ADMIN]);  // Staff hoặc Admin đều xem được
+
+// Lấy các số liệu thống kê cho nhân viên
+try {
+    // 1. Tổng số phòng
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM rooms");
     $stmt->execute();
     $total_rooms = $stmt->fetch()['count'];
     
+<<<<<<< HEAD
     // Phòng trống
+=======
+    // 2. Phòng trống (hiện tại)
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     $stmt = $pdo->prepare("
         SELECT COUNT(DISTINCT r.id) as count FROM rooms r
         LEFT JOIN bookings b ON r.id = b.room_id 
@@ -44,16 +62,30 @@ try {
     $stmt->execute();
     $today_bookings = $stmt->fetch()['count'];
     
+<<<<<<< HEAD
     // Booking sắp check-in (48 giờ tới)
     $stmt = $pdo->prepare("
         SELECT COUNT(*) as count FROM bookings 
         WHERE DATE(check_in) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 2 DAY)
         AND status IN ('pending', 'confirmed')
+=======
+    // 5. Booking sắp check-in (trong vòng 48 giờ tới)
+    // Nhân viên cần chuẩn bị phòng cho các booking này
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) as count FROM bookings 
+        WHERE DATE(check_in) BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 2 DAY)
+        AND status IN ('pending', 'confirmed')  -- Chưa check-in
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     ");
     $stmt->execute();
     $upcoming_bookings = $stmt->fetch()['count'];
     
+<<<<<<< HEAD
     // Booking cần check-out hôm nay
+=======
+    // 6. Booking cần check-out hôm nay
+    // Nhân viên cần xử lý check-out và dọn phòng
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     $stmt = $pdo->prepare("
         SELECT COUNT(*) as count FROM bookings 
         WHERE DATE(check_out) = CURDATE() AND status IN ('checked_in')

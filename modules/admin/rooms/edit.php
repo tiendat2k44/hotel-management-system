@@ -79,11 +79,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 mkdir($upload_dir, 0755, true);
             }
             
+<<<<<<< HEAD
             // Xóa ảnh cũ nếu là file từ server
             if (!empty($room['image_url']) && strpos($room['image_url'], 'assets/uploads/') === 0) {
                 $old_file = ROOT_PATH . $room['image_url'];
                 if (file_exists($old_file)) {
                     unlink($old_file);
+=======
+            // Xóa ảnh cũ trong thư mục server (không xóa ảnh từ URL internet)
+            if (!empty($room['image_url']) && strpos($room['image_url'], 'assets/uploads/') === 0) {
+                $old_file = ROOT_PATH . $room['image_url'];
+                if (file_exists($old_file)) {
+                    unlink($old_file); // Xóa file cũ
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
                 }
             }
             

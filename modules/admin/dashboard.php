@@ -1,6 +1,12 @@
 <?php
 /**
+<<<<<<< HEAD
  * Admin Dashboard
+=======
+ * Admin Dashboard - Trang chủ quản trị
+ * Hiển thị các thống kê tổng quan: số phòng, booking, doanh thu...
+ * Chỉ admin mới được truy cập
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
  */
 
 require_once '../../config/constants.php';
@@ -8,22 +14,38 @@ require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 require_once '../../includes/auth_check.php';
 
+<<<<<<< HEAD
 requireRole(ROLE_ADMIN);
 
 // Lấy thống kê
 try {
     // Tổng số phòng
+=======
+requireRole(ROLE_ADMIN);  // Chặn nếu không phải admin
+
+// Lấy các số liệu thống kê từ database
+try {
+    // 1. Đếm tổng số phòng trong khách sạn
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM rooms");
     $stmt->execute();
     $total_rooms = $stmt->fetch()['count'];
     
+<<<<<<< HEAD
     // Phòng trống (không có booking đang hoạt động)
+=======
+    // 2. Đếm phòng trống (không có booking nào đang hoạt động)
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     $stmt = $pdo->prepare("
         SELECT COUNT(DISTINCT r.id) as count FROM rooms r
         LEFT JOIN bookings b ON r.id = b.room_id 
             AND b.status IN ('pending','confirmed','checked_in')
             AND b.check_out > NOW()
+<<<<<<< HEAD
         WHERE r.status = 'available' AND b.id IS NULL
+=======
+        WHERE r.status = 'available' AND b.id IS NULL  -- Phòng available và không có booking
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     ");
     $stmt->execute();
     $available_rooms = $stmt->fetch()['count'];
@@ -44,7 +66,11 @@ try {
     $stmt->execute();
     $today_bookings = $stmt->fetch()['count'];
     
+<<<<<<< HEAD
     // Doanh thu hôm nay
+=======
+    // 5. Tính doanh thu hôm nay (từ các payment đã hoàn thành)
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     $stmt = $pdo->prepare("
         SELECT COALESCE(SUM(amount), 0) as total FROM payments 
         WHERE DATE(payment_date) = CURDATE() AND status = 'completed'
@@ -52,12 +78,20 @@ try {
     $stmt->execute();
     $today_revenue = $stmt->fetch()['total'];
     
+<<<<<<< HEAD
     // Doanh thu tháng này
+=======
+    // 6. Tính doanh thu tháng này
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     $stmt = $pdo->prepare("
         SELECT COALESCE(SUM(amount), 0) as total FROM payments 
         WHERE MONTH(payment_date) = MONTH(NOW()) 
             AND YEAR(payment_date) = YEAR(NOW()) 
+<<<<<<< HEAD
             AND status = 'completed'
+=======
+            AND status = 'completed'  -- Chỉ tính payment đã completed
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     ");
     $stmt->execute();
     $monthly_revenue = $stmt->fetch()['total'];

@@ -138,7 +138,11 @@ $page_title = 'Quản lý phòng';
                                     <?php if (!empty($room['image_url'])): ?>
                                         <a href="view.php?id=<?php echo $room['id']; ?>" data-bs-toggle="tooltip" title="Xem chi tiết">
                                             <?php if (strpos($room['image_url'], 'http') === 0): ?>
+<<<<<<< HEAD
                                                 <!-- URL từ internet -->
+=======
+                                                <!-- Ảnh từ URL internet (Unsplash, Pexels...) -->
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
                                                 <img src="<?php echo esc($room['image_url']); ?>" 
                                                      alt="Room <?php echo esc($room['room_number']); ?>" 
                                                      class="img-thumbnail" 

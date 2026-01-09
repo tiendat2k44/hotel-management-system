@@ -1,6 +1,12 @@
 <?php
 /**
+<<<<<<< HEAD
  * Xem chi tiết booking
+=======
+ * Xem chi tiết booking - Admin/Staff
+ * Hiển thị đầy đủ thông tin booking, khách hàng, phòng, dịch vụ
+ * Cho phép admin xác nhận, check-in, check-out, hủy booking
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
  */
 
 require_once '../../../config/constants.php';
@@ -8,7 +14,11 @@ require_once '../../../config/database.php';
 require_once '../../../includes/functions.php';
 require_once '../../../includes/auth_check.php';
 
+<<<<<<< HEAD
 requireRole([ROLE_ADMIN, ROLE_STAFF]);
+=======
+requireRole([ROLE_ADMIN, ROLE_STAFF]);  // Admin hoặc Staff đều được xem
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
 
 $booking_id = $_GET['id'] ?? '';
 $errors = [];
@@ -20,7 +30,13 @@ if (empty($booking_id)) {
 }
 
 try {
+<<<<<<< HEAD
     // Lấy thông tin booking
+=======
+    // Lấy thông tin booking đầy đủ từ nhiều bảng
+    // JOIN: bookings -> customers -> users (thông tin khách)
+    // JOIN: bookings -> rooms -> room_types (thông tin phòng)
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     $stmt = $pdo->prepare("
         SELECT b.*, u.full_name, u.phone, u.email,
                r.room_number, rt.type_name, rt.base_price,
@@ -39,13 +55,22 @@ try {
         redirect('index.php', 'Booking không tồn tại', 'danger');
     }
     
+<<<<<<< HEAD
     // Lấy danh sách dịch vụ đã sử dụng
+=======
+    // Lấy danh sách dịch vụ khách hàng đã sử dụng trong booking này
+    // VD: giặt ủi, ăn sáng, minibar...
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     $stmt = $pdo->prepare("
         SELECT su.*, s.service_name, s.unit
         FROM service_usage su
         JOIN services s ON su.service_id = s.id
         WHERE su.booking_id = :booking_id
+<<<<<<< HEAD
         ORDER BY su.usage_date
+=======
+        ORDER BY su.usage_date  -- Sắp xếp theo thời gian sử dụng
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     ");
     $stmt->execute(['booking_id' => $booking_id]);
     $services_used = $stmt->fetchAll();
@@ -55,6 +80,7 @@ try {
     redirect('index.php', 'Lỗi hệ thống', 'danger');
 }
 
+<<<<<<< HEAD
 // Xử lý cập nhật trạng thái
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
@@ -65,6 +91,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             $stmt->execute(['id' => $booking_id]);
             
             // Update room status to occupied when admin confirms
+=======
+// Xử lý cập nhật trạng thái booking (confirm, check-in, check-out, cancel)
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
+    $action = $_POST['action'];
+    
+    // Action 1: Xác nhận booking (pending -> confirmed)
+    if ($action == 'confirm' && $booking['status'] == 'pending') {
+        try {
+            // Cập nhật trạng thái booking thành 'confirmed'
+            $stmt = $pdo->prepare("UPDATE bookings SET status = 'confirmed' WHERE id = :id");
+            $stmt->execute(['id' => $booking_id]);
+            
+            // Cập nhật trạng thái phòng thành 'đã đặt' khi admin xác nhận booking
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
             $stmt = $pdo->prepare("UPDATE rooms SET status = 'occupied' WHERE id = :id");
             $stmt->execute(['id' => $booking['room_id']]);
             
@@ -102,7 +142,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             ");
             $stmt->execute(['id' => $booking_id]);
             
+<<<<<<< HEAD
             // Update room status to available (ready for next guest)
+=======
+            // Cập nhật phòng về trạng thái 'trống' sau khi khách trả phòng
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
             $stmt = $pdo->prepare("UPDATE rooms SET status = 'available' WHERE id = :id");
             $stmt->execute(['id' => $booking['room_id']]);
             

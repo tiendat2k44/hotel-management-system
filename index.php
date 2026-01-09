@@ -25,7 +25,11 @@ try {
     $stmt->execute();
     $room_types = $stmt->fetchAll();
     
+<<<<<<< HEAD
     // Lấy phòng có ảnh để hiển thị
+=======
+    // Lấy tối đa 12 phòng có hình ảnh và đang trống để hiển thị trên trang chủ
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     $stmt = $pdo->prepare("
         SELECT r.id, r.room_number, r.image_url, rt.type_name, rt.base_price, rt.capacity
         FROM rooms r

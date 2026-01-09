@@ -28,7 +28,12 @@ try {
     if (strtotime($check_out) <= strtotime($check_in)) {
         $error = 'Ngày check-out phải sau ngày check-in';
     } else {
+<<<<<<< HEAD
         // Tìm phòng trống: tránh trùng khoảng ngày theo cột đúng (check_in, check_out)
+=======
+        // Tìm phòng trống trong khoảng thời gian check_in -> check_out
+        // Bao gồm cả hình ảnh phòng để hiển thị
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
         $stmt = $pdo->prepare("
             SELECT r.id, r.room_number, r.image_url, rt.type_name, rt.base_price, rt.capacity, rt.description, rt.amenities
             FROM rooms r

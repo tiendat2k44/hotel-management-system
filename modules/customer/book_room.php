@@ -1,6 +1,11 @@
 <?php
 /**
  * Trang đặt phòng - Khách hàng
+<<<<<<< HEAD
+=======
+ * Cho phép khách hàng đặt phòng với thông tin: ngày check-in, check-out, số người
+ * Tính tiền tự động dựa trên giá phòng và số đêm
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
  */
 
 require_once '../../config/constants.php';
@@ -8,7 +13,11 @@ require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 require_once '../../includes/auth_check.php';
 
+<<<<<<< HEAD
 requireRole(ROLE_CUSTOMER);
+=======
+requireRole(ROLE_CUSTOMER);  // Chỉ customer mới đặt phòng được
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
 
 $room_id = $_GET['room_id'] ?? 0;
 $check_in = $_GET['check_in'] ?? date('Y-m-d');
@@ -21,12 +30,21 @@ $errors = [];
 $success = false;
 
 try {
+<<<<<<< HEAD
     // Lấy thông tin phòng
+=======
+    // Lấy thông tin chi tiết phòng từ database
+    // JOIN với room_types để lấy loại phòng, giá, sức chứa, tiện nghi
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     $stmt = $pdo->prepare("
         SELECT r.*, rt.type_name, rt.base_price, rt.capacity, rt.description, rt.amenities
         FROM rooms r
         JOIN room_types rt ON r.room_type_id = rt.id
+<<<<<<< HEAD
         WHERE r.id = :id AND r.status = 'available'
+=======
+        WHERE r.id = :id AND r.status = 'available'  -- Chỉ hiển thị phòng available
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     ");
     $stmt->execute(['id' => $room_id]);
     $room = $stmt->fetch();
@@ -60,12 +78,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if (empty($errors)) {
         try {
+<<<<<<< HEAD
             // Tính tiền
             $nights = calculateNights($check_in, $check_out);
             $total_amount = $room['base_price'] * $nights;
             $booking_code = generateBookingCode();
             
             // Tạo booking
+=======
+            // Tính tổng tiền: giá phòng × số đêm
+            $nights = calculateNights($check_in, $check_out);
+            $total_amount = $room['base_price'] * $nights;
+            $booking_code = generateBookingCode();  // Tạo mã booking unique
+            
+            // Insert booking mới vào database
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
             $stmt = $pdo->prepare("
                 INSERT INTO bookings (
                     booking_code, customer_id, room_id, check_in, check_out,

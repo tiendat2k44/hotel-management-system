@@ -28,12 +28,21 @@ function requireLogin() {
 }
 
 /**
+<<<<<<< HEAD
  * Redirect nếu không có quyền
+=======
+ * Kiểm tra quyền truy cập (admin, staff, customer)
+ * Chuyển hướng về trang chủ nếu không đủ quyền
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
  */
 function requireRole($roles) {
     requireLogin();
     
+<<<<<<< HEAD
     // Normalize roles to lower-case strings for tolerant comparison
+=======
+    // Chuẩn hóa role về chữ thường để so sánh không phân biệt hoa/thường
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     $normalize = function ($value) {
         return strtolower(trim($value));
     };
@@ -53,7 +62,13 @@ function requireRole($roles) {
 }
 
 /**
+<<<<<<< HEAD
  * Escape HTML output để tránh XSS
+=======
+ * Escape HTML output để tránh XSS (Cross-Site Scripting)
+ * Chuyển các ký tự đặc biệt thành HTML entities
+ * VD: <script> thành &lt;script&gt;
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
  */
 function esc($text) {
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
@@ -61,6 +76,10 @@ function esc($text) {
 
 /**
  * Format tiền tệ Việt Nam
+<<<<<<< HEAD
+=======
+ * VD: 1000000 -> 1.000.000 đ
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
  */
 function formatCurrency($amount) {
     return number_format($amount, 0, ',', '.') . ' ' . CURRENCY_SYMBOL;
@@ -84,6 +103,10 @@ function formatDateTime($datetime, $format = 'd/m/Y H:i') {
 
 /**
  * Validate email
+<<<<<<< HEAD
+=======
+ * Kiểm tra email có đúng định dạng hay không
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
  */
 function validateEmail($email) {
     return filter_var($email, FILTER_VALIDATE_EMAIL);
@@ -91,6 +114,10 @@ function validateEmail($email) {
 
 /**
  * Validate phone number (Việt Nam)
+<<<<<<< HEAD
+=======
+ * Chấp nhận: 0123456789 hoặc +84123456789 (9-10 số)
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
  */
 function validatePhone($phone) {
     return preg_match('/^(0|\+84)(\d{9,10})$/', $phone);
@@ -106,6 +133,10 @@ function validateDate($date, $format = 'Y-m-d') {
 
 /**
  * Generate unique booking code
+<<<<<<< HEAD
+=======
+ * Tạo mã đặt phòng duy nhất dạng: BK20231215143022[random]
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
  */
 function generateBookingCode() {
     return 'BK' . date('YmdHis') . rand(1000, 9999);
@@ -113,6 +144,10 @@ function generateBookingCode() {
 
 /**
  * Generate unique payment code
+<<<<<<< HEAD
+=======
+ * Tạo mã thanh toán duy nhất dạng: PY20231215143022[random]
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
  */
 function generatePaymentCode() {
     return 'PY' . date('YmdHis') . rand(1000, 9999);
@@ -120,23 +155,42 @@ function generatePaymentCode() {
 
 /**
  * Generate unique invoice code
+<<<<<<< HEAD
+=======
+ * Tạo mã hóa đơn dạng: INV202312[random]
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
  */
 function generateInvoiceCode() {
     return 'INV' . date('Ym') . rand(10000, 99999);
 }
 
 /**
+<<<<<<< HEAD
  * Kiểm tra phòng trống
  */
 function isRoomAvailable($pdo, $room_id, $check_in, $check_out) {
     try {
+=======
+ * Kiểm tra phòng còn trống trong khoảng thời gian check_in -> check_out
+ * Return: true nếu phòng trống, false nếu đã có booking trùng
+ */
+function isRoomAvailable($pdo, $room_id, $check_in, $check_out) {
+    try {
+        // Đếm số booking trùng ngày với phòng này
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
         $stmt = $pdo->prepare("
             SELECT COUNT(*) as count 
             FROM bookings 
             WHERE room_id = :room_id 
+<<<<<<< HEAD
             AND status IN ('confirmed', 'checked_in')
             AND (
                 (check_in < :check_out AND check_out > :check_in)
+=======
+            AND status IN ('confirmed', 'checked_in')  -- Chỉ kiểm tra booking đang hoạt động
+            AND (
+                (check_in < :check_out AND check_out > :check_in)  -- Điều kiện trùng khoảng thời gian
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
             )
         ");
         

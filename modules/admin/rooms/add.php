@@ -41,11 +41,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors[] = 'Tầng không được để trống';
     }
     
+<<<<<<< HEAD
     // Xử lý upload file hình ảnh
     if (!empty($_FILES['room_image']['name'])) {
         $file = $_FILES['room_image'];
         $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         $max_size = 5 * 1024 * 1024; // 5MB
+=======
+    // Xử lý tải lên hình ảnh phòng từ máy tính
+    if (!empty($_FILES['room_image']['name'])) {
+        $file = $_FILES['room_image'];
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $max_size = 5 * 1024 * 1024; // Giới hạn 5MB
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
         
         if (!in_array($file['type'], $allowed_types)) {
             $errors[] = 'Định dạng hình ảnh không hợp lệ. Chỉ hỗ trợ JPG, PNG, GIF, WebP';
@@ -54,11 +62,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } elseif ($file['error'] !== UPLOAD_ERR_OK) {
             $errors[] = 'Lỗi upload file: ' . $file['error'];
         } else {
+<<<<<<< HEAD
+=======
+            // Tạo thư mục lưu ảnh nếu chưa có
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
             $upload_dir = UPLOAD_PATH . 'rooms/';
             if (!is_dir($upload_dir)) {
                 mkdir($upload_dir, 0755, true);
             }
             
+<<<<<<< HEAD
+=======
+            // Tạo tên file unique để tránh trùng
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
             $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
             $filename = 'room_' . time() . '_' . uniqid() . '.' . $ext;
             $filepath = $upload_dir . $filename;

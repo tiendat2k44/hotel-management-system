@@ -1,6 +1,7 @@
 <?php
 /**
  * Trang đăng nhập
+<<<<<<< HEAD
  */
 
 // Khởi tạo
@@ -9,6 +10,17 @@ require_once '../../config/constants.php';
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
 require_once '../../includes/auth_check.php';
+=======
+ * Cho phép user nhập username/password để đăng nhập vào hệ thống
+ * Sau khi đăng nhập thành công, redirect đến dashboard tùy theo role (admin/staff/customer)
+ */
+
+// Khởi tạo - Load các file cấu hình và function cần thiết
+require_once '../../config/constants.php';    // Hằng số hệ thống
+require_once '../../config/database.php';     // Kết nối database
+require_once '../../includes/functions.php';  // Các hàm tiện ích
+require_once '../../includes/auth_check.php'; // Kiểm tra session
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
 
 // Nếu đã đăng nhập, redirect tới dashboard
 if (isLoggedIn()) {
@@ -24,6 +36,7 @@ if (isLoggedIn()) {
 $errors = [];
 $success = false;
 
+<<<<<<< HEAD
 // Xử lý form đăng nhập
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = trim($_POST['username'] ?? '');
@@ -31,6 +44,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $remember = isset($_POST['remember']);
     
     // Validate
+=======
+// Xử lý form đăng nhập khi user nhấn nút Submit
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = trim($_POST['username'] ?? '');  // Lấy username từ form
+    $password = $_POST['password'] ?? '';         // Lấy password từ form
+    $remember = isset($_POST['remember']);        // Checkbox "Ghi nhớ đăng nhập"
+    
+    // Validate dữ liệu đầu vào
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
     if (empty($username)) {
         $errors[] = 'Tên đăng nhập không được để trống';
     }
@@ -40,14 +62,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if (empty($errors)) {
         try {
+<<<<<<< HEAD
             // Kiểm tra user
+=======
+            // Tìm user trong database theo username hoặc email
+            // LEFT JOIN với bảng customers để lấy customer_id (nếu là khách hàng)
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
             $stmt = $pdo->prepare("
                 SELECT u.*, 
                 CASE WHEN c.id IS NOT NULL THEN c.id ELSE NULL END as customer_id
                 FROM users u
                 LEFT JOIN customers c ON u.id = c.user_id
                 WHERE (u.username = :username OR u.email = :email) 
+<<<<<<< HEAD
                 AND u.status = 'active'
+=======
+                AND u.status = 'active'  -- Chỉ lấy tài khoản đang hoạt động
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
             ");
             
             $stmt->execute([
@@ -57,12 +88,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             $user = $stmt->fetch();
             
+<<<<<<< HEAD
             if ($user && password_verify($password, $user['password'])) {
                 // Tái tạo session ID sau khi xác thực để tránh session fixation
                 if (session_status() === PHP_SESSION_ACTIVE) {
                     session_regenerate_id(true);
                 }
                 // Đăng nhập thành công
+=======
+            // Kiểm tra password: So sánh password nhập vào với hash trong database
+            if ($user && password_verify($password, $user['password'])) {
+                // Tái tạo session ID để tránh session fixation attack (bảo mật)
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    session_regenerate_id(true);
+                }
+                // Đăng nhập thành công - Lưu thông tin user vào session
+>>>>>>> 6981403bf39073ea6cabada40bb02769739be291
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['full_name'] = $user['full_name'];
